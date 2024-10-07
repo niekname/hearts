@@ -1,0 +1,42 @@
+plugins {
+  alias(libs.plugins.kotlin.jvm)
+  alias(libs.plugins.versions)
+  id 'application'
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation(libs.bundles.log4j)
+
+  testImplementation(libs.junit.jupiter.api)
+  testRuntimeOnly(libs.junit.jupiter.engine)
+  testImplementation(libs.assertj.core)
+}
+
+kotlin {
+  jvmToolchain(22)
+}
+
+application {
+  mainClass = 'org.socratesbe.hearts.ApplicationKt'
+  applicationDefaultJvmArgs = ['-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager']
+}
+
+test {
+  useJUnitPlatform()
+}
+
+tasks.named("dependencyUpdates").configure {
+  def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?$/
+    return !stableKeyword && !(version ==~ regex)
+  }
+
+  rejectVersionIf {
+    isNonStable(it.candidate.version)
+  }
+}

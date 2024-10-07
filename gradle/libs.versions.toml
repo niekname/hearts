@@ -1,0 +1,20 @@
+[versions]
+assertj = "3.26.3"
+kotlin = "2.0.20"
+log4j2 = "2.24.1"
+junit = "5.11.2"
+
+[libraries]
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j2" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j2" }
+log4j-jul = { module = "org.apache.logging.log4j:log4j-jul", version.ref = "log4j2" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+
+[bundles]
+log4j = ["log4j-api", "log4j-core", "log4j-jul"]
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
