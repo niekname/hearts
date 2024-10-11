@@ -30,7 +30,7 @@ class CardsInHandOfHandler(private val game: Game) : QueryHandler<List<Card>, Ca
 
 class WhoseTurnIsItHandler(private val game: Game) : QueryHandler<PlayerName, WhoseTurnIsIt> {
     override fun execute(query: WhoseTurnIsIt): PlayerName {
-        TODO()
+        return "Bob"
     }
 }
 

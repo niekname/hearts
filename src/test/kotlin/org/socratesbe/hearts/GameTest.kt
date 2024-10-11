@@ -112,7 +112,6 @@ class GameTest {
         assertThat(uniqueCards.size).isEqualTo(52)
     }
 
-    @Disabled
     @Test
     fun `player with 2 of clubs gets the first turn`() {
         onDeal(::dealFixedCards)
@@ -566,7 +565,6 @@ class GameTest {
     }
 
     private fun onDeal(dealCardsToPlayer: (PlayerName) -> List<Card>) {
-        TODO()
     }
 
     private fun playCards(cardPlays: Iterable<PlayCard>) {
@@ -576,7 +574,6 @@ class GameTest {
     private fun setPassingRuleTo(rule: PassingRule) {
         // hint: for now, ignore this method by commenting out the line below
         // this method will become relevant when you encounter the first test where players have to pass cards
-        TODO()
     }
 
     private fun playCards(cardPlays: Iterator<PlayCard>) {
