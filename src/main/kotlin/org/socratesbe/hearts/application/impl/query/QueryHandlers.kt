@@ -9,6 +9,8 @@ import org.socratesbe.hearts.application.api.query.WhoseTurnIsIt
 import org.socratesbe.hearts.domain.Game
 import org.socratesbe.hearts.vocabulary.Card
 import org.socratesbe.hearts.vocabulary.PlayerName
+import org.socratesbe.hearts.vocabulary.Suit
+import org.socratesbe.hearts.vocabulary.Symbol
 
 fun interface QueryHandler<Result, Q : Query<Result>> {
     fun execute(query: Q): Result
@@ -22,7 +24,7 @@ class HasGameStartedHandler(private val game: Game) : QueryHandler<Boolean, HasG
 
 class CardsInHandOfHandler(private val game: Game) : QueryHandler<List<Card>, CardsInHandOf> {
     override fun execute(query: CardsInHandOf): List<Card> {
-        TODO()
+        return game.cardsInHandOf(query.player)
     }
 }
 

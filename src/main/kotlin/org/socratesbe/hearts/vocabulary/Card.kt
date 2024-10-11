@@ -1,5 +1,9 @@
 package org.socratesbe.hearts.vocabulary
 
+
+data class Deck(val cards: List<Card> =
+    Suit.entries.flatMap { suit -> Symbol.entries.map { Card(suit, it)} })
+
 data class Card(val suit: Suit, val symbol: Symbol) {
     override fun toString() = "$symbol$suit"
 }

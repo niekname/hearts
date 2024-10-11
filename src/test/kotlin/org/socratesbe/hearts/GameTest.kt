@@ -93,7 +93,6 @@ class GameTest {
         )
     }
 
-    @Disabled
     @Test
     fun `each player is dealt 13 unique cards on game start`() {
         joinGame("Mary")
@@ -570,6 +569,10 @@ class GameTest {
         TODO()
     }
 
+    private fun playCards(cardPlays: Iterable<PlayCard>) {
+        cardPlays.forEach(this::playCard)
+    }
+
     private fun setPassingRuleTo(rule: PassingRule) {
         // hint: for now, ignore this method by commenting out the line below
         // this method will become relevant when you encounter the first test where players have to pass cards
@@ -577,10 +580,6 @@ class GameTest {
     }
 
     private fun playCards(cardPlays: Iterator<PlayCard>) {
-        cardPlays.forEach(this::playCard)
-    }
-
-    private fun playCards(cardPlays: Iterable<PlayCard>) {
         cardPlays.forEach(this::playCard)
     }
 

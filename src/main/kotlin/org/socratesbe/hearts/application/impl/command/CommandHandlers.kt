@@ -10,7 +10,7 @@ internal fun interface CommandHandler<Result, C : Command<Result>> {
 internal class MakePlayerJoinGameHandler(private val game: Game) :
     CommandHandler<PlayerJoinResponse, MakePlayerJoinGame> {
     override fun execute(command: MakePlayerJoinGame): PlayerJoinResponse {
-        game.playerJoins()
+        game.playerJoins(command.player)
         return PlayerCouldNotJoin(command.player, "Game already has four players")
     }
 }
