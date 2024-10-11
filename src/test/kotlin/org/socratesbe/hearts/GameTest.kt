@@ -51,8 +51,6 @@ class GameTest {
 
     private val context = Context(Game())
 
-    // start here by enabling this first test
-    @Disabled
     @Test
     fun `game can start when exactly four players have joined`() {
         joinGame("Mary")

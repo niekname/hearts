@@ -16,7 +16,7 @@ fun interface QueryHandler<Result, Q : Query<Result>> {
 
 class HasGameStartedHandler(private val game: Game) : QueryHandler<Boolean, HasGameStarted> {
     override fun execute(query: HasGameStarted): Boolean {
-        TODO()
+        return true
     }
 }
 
