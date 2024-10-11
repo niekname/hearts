@@ -1,8 +1,21 @@
 package org.socratesbe.hearts.vocabulary
 
+private const val TOTAL_NUMBER_OF_CARDS_IN_DECK = 52
 
-data class Deck(val cards: List<Card> =
-    Suit.entries.flatMap { suit -> Symbol.entries.map { Card(suit, it)} })
+data class Deck(
+    val cards: List<Card> =
+        Suit.entries.flatMap { suit ->
+            Symbol.entries.map { Card(suit, it) }
+        }
+) {
+    fun dealCardsFor(players: List<Player>): List<PlayerWithCards> {
+        return cards.chunked(TOTAL_NUMBER_OF_CARDS_IN_DECK / players.size)
+            .mapIndexed { idx, cards -> PlayerWithCards(players[idx], cards) }
+    }
+}
+
+data class Player(val name: PlayerName)
+data class PlayerWithCards(val player: Player, val cards: List<Card>)
 
 data class Card(val suit: Suit, val symbol: Symbol) {
     override fun toString() = "$symbol$suit"
@@ -11,7 +24,7 @@ data class Card(val suit: Suit, val symbol: Symbol) {
 enum class Suit {
     HEARTS, DIAMONDS, CLUBS, SPADES;
 
-    override fun toString() = when(this) {
+    override fun toString() = when (this) {
         HEARTS -> "♥️"
         DIAMONDS -> "♦️"
         CLUBS -> "♣️"
@@ -22,7 +35,7 @@ enum class Suit {
 enum class Symbol {
     TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE;
 
-    override fun toString() = when(this) {
+    override fun toString() = when (this) {
         TWO -> "2"
         THREE -> "3"
         FOUR -> "4"
