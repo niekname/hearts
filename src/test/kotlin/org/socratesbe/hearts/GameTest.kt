@@ -76,8 +76,6 @@ class GameTest {
         assertThat(gameHasStarted()).isFalse()
     }
 
-    // ... I think you know what to do from now on :)
-    @Disabled
     @Test
     fun `no more than four players can join the game`() {
         joinGame("Mary")

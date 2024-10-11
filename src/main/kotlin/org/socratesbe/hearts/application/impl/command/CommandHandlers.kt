@@ -11,7 +11,7 @@ internal class MakePlayerJoinGameHandler(private val game: Game) :
     CommandHandler<PlayerJoinResponse, MakePlayerJoinGame> {
     override fun execute(command: MakePlayerJoinGame): PlayerJoinResponse {
         game.playerJoins()
-        return PlayerCouldNotJoin("", "")
+        return PlayerCouldNotJoin(command.player, "Game already has four players")
     }
 }
 
