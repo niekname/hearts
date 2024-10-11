@@ -64,8 +64,6 @@ class GameTest {
         assertThat(gameHasStarted()).isTrue()
     }
 
-    // enable the second test after you got the first one green
-    @Disabled
     @Test
     fun `game cannot start when less than four players have joined`() {
         joinGame("Mary")
