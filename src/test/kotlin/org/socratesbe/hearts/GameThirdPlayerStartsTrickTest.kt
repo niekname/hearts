@@ -179,7 +179,6 @@ class GameThirdPlayerStartsTrickTest {
         assertThat(result).isEqualTo(CouldNotPlayCard("Bob must play 2♣️ on the first turn"))
     }
 
-    @Disabled
     @Test
     fun `player that is not to the left of the previous player cannot play next`() {
         onDeal(::dealFixedCards)
@@ -195,6 +194,23 @@ class GameThirdPlayerStartsTrickTest {
         val result = playCard("Mary", TWO of HEARTS)
 
         assertThat(result).isEqualTo(CouldNotPlayCard("It's not Mary's turn to play"))
+    }
+
+    @Test
+    fun `player that is to the left of the previous player can play next`() {
+        onDeal(::dealFixedCards)
+        setPassingRuleTo(NoPassing)
+
+        joinGame("Mary")
+        joinGame("Joe")
+        joinGame("Bob")
+        joinGame("Jane")
+        startGame()
+        playCard("Bob", TWO of CLUBS)
+
+        val result = playCard("Jane", THREE of CLUBS)
+
+        assertThat(result).isEqualTo(PlayedCard)
     }
 
     @Disabled

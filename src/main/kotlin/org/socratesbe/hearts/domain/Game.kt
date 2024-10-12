@@ -36,12 +36,28 @@ class Game(private val dealer: Dealer) {
 
     private fun players() = events.filterIsInstance<PlayerJoined>().map { it.player }
 
-    fun whoseTurnIsIt() = whoStartsTheRound()
+    fun whoseTurnIsIt(): PlayerName {
+        if (isFirstCardOfRound())
+            return whoStartsTheRound()
+        else
+            return nextPlayer().name
+    }
+
+    private fun nextPlayer(): Player {
+        val lastPlayer = findLastCardPlayedPlayer()
+        val lastPlayerIdx = players().indexOf(lastPlayer)
+        return players()[(lastPlayerIdx + 1) % NUMBER_OF_PLAYERS]
+    }
+
+    private fun findLastCardPlayedPlayer() =
+        events.filterIsInstance<CardPlayed>().last().player
 
     fun playCard(playedBy: PlayerName, playedCard: Card) {
         validateItsPlayersTurn(playedBy)
         validatePlayerHasCard(playedCard, playedBy)
         validateFirstCardOfRound(playedCard, playedBy)
+
+        events += CardPlayed(Player(playedBy))
     }
 
     private fun validateItsPlayersTurn(playedBy: PlayerName) {
@@ -59,8 +75,10 @@ class Game(private val dealer: Dealer) {
         playedCard: Card,
         playedBy: PlayerName
     ) {
-        if (playedCard != FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND) throw RuntimeException("$playedBy must play $FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND on the first turn")
+        if (isFirstCardOfRound() && playedCard != FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND) throw RuntimeException("$playedBy must play $FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND on the first turn")
     }
+
+    private fun isFirstCardOfRound() = events.filterIsInstance<CardPlayed>().isEmpty()
 
     private fun whoStartsTheRound() =
         events.filterIsInstance<CardsDealt>()
@@ -75,6 +93,7 @@ class Game(private val dealer: Dealer) {
 data class PlayerJoined(val player: Player) : DomainEvent
 data class CardsDealt(val player: Player, val cards: List<Card>) : DomainEvent
 data object GameStarted : DomainEvent
+data class CardPlayed(val player: Player) : DomainEvent
 interface DomainEvent
 
 interface Dealer {
