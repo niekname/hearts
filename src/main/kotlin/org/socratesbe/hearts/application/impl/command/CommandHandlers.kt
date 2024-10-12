@@ -27,7 +27,11 @@ internal class StartGameHandler(private val game: Game) : CommandHandler<StartGa
 
 internal class PlayCardHandler(private val game: Game) : CommandHandler<PlayCardResponse, PlayCard> {
     override fun execute(command: PlayCard): PlayCardResponse {
-        TODO()
+        return when {
+            game.canPlayCard(command.playedBy) -> PlayedCard
+            else -> CouldNotPlayCard("It's not ${command.playedBy}'s turn to play")
+        }
+
     }
 }
 

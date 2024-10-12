@@ -131,7 +131,6 @@ class GameThirdPlayerStartsTrickTest {
         assertThat(whoseTurnIsIt()).isEqualTo("Bob")
     }
 
-    @Disabled
     @Test
     fun `player who is not on turn cannot play a card`() {
         onDeal(::dealFixedCards)

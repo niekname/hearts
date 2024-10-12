@@ -37,6 +37,9 @@ class Game(private val dealer: Dealer) {
 
     fun whoseTurnIsIt() = whoStartsTheGame()
 
+    fun canPlayCard(playerName: PlayerName) =
+        whoseTurnIsIt() == playerName
+
     private fun whoStartsTheGame() =
         events.filterIsInstance<CardsDealt>().first { TWO of CLUBS in it.cards }.player.name
 
