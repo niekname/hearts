@@ -20,13 +20,6 @@ import org.socratesbe.hearts.application.api.query.HasGameEnded
 import org.socratesbe.hearts.application.api.query.HasGameStarted
 import org.socratesbe.hearts.application.api.query.WhatIsScoreOfPlayer
 import org.socratesbe.hearts.application.api.query.WhoseTurnIsIt
-import org.socratesbe.hearts.domain.AlwaysPassLeft
-import org.socratesbe.hearts.domain.FourWayPassing
-import org.socratesbe.hearts.domain.Game
-import org.socratesbe.hearts.domain.NoPassing
-import org.socratesbe.hearts.domain.PassingRule
-import org.socratesbe.hearts.vocabulary.Card
-import org.socratesbe.hearts.vocabulary.PlayerName
 import org.socratesbe.hearts.vocabulary.Suit.CLUBS
 import org.socratesbe.hearts.vocabulary.Suit.DIAMONDS
 import org.socratesbe.hearts.vocabulary.Suit.HEARTS
@@ -42,14 +35,25 @@ import org.socratesbe.hearts.vocabulary.Symbol.SIX
 import org.socratesbe.hearts.vocabulary.Symbol.TEN
 import org.socratesbe.hearts.vocabulary.Symbol.THREE
 import org.socratesbe.hearts.vocabulary.Symbol.TWO
-import org.socratesbe.hearts.vocabulary.of
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.socratesbe.hearts.domain.*
+import org.socratesbe.hearts.vocabulary.*
+import java.util.stream.Stream
 
-class GameTest {
+class GameThirdPlayerStartsTrickTest {
 
-    private val context = Context(Game())
+    private val context = Context(Game(FixedDealer()))
+
+    class FixedDealer : Dealer {
+        override fun dealCardsFor(players: List<Player>): List<PlayerWithCards> {
+            return players.map { PlayerWithCards(it, dealFixedCards(it.name))}
+        }
+    }
 
     @Test
     fun `game can start when exactly four players have joined`() {
@@ -112,19 +116,20 @@ class GameTest {
         assertThat(uniqueCards.size).isEqualTo(52)
     }
 
-    @Test
-    fun `player with 2 of clubs gets the first turn`() {
+    @ParameterizedTest
+    @MethodSource("data")
+    fun `player with 2 of clubs gets the first turn`(playerName: PlayerName) {
         onDeal(::dealFixedCards)
         setPassingRuleTo(NoPassing)
 
         joinGame("Mary")
         joinGame("Joe")
-        joinGame("Bob")
+        joinGame(playerName)
         joinGame("Jane")
 
         startGame()
 
-        assertThat(whoseTurnIsIt()).isEqualTo("Bob")
+        assertThat(whoseTurnIsIt()).isEqualTo(playerName)
     }
 
     @Disabled
@@ -604,4 +609,10 @@ class GameTest {
 
     private fun hasGameEnded() = context.queryExecutor.execute(HasGameEnded)
 
+    companion object {
+        @JvmStatic
+        fun data(): Stream<Arguments> {
+            return Stream.of(Arguments.of("Bob"))
+        }
+    }
 }

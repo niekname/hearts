@@ -1,5 +1,7 @@
 package org.socratesbe.hearts.vocabulary
 
+import org.socratesbe.hearts.domain.Dealer
+
 private const val TOTAL_NUMBER_OF_CARDS_IN_DECK = 52
 
 data class Deck(
@@ -7,9 +9,11 @@ data class Deck(
         Suit.entries.flatMap { suit ->
             Symbol.entries.map { Card(suit, it) }
         }
-) {
-    fun dealCardsFor(players: List<Player>): List<PlayerWithCards> {
-        return cards.chunked(TOTAL_NUMBER_OF_CARDS_IN_DECK / players.size)
+)
+
+class ChunkedDealer : Dealer {
+    override fun dealCardsFor(players: List<Player>): List<PlayerWithCards> {
+        return Deck().cards.chunked(TOTAL_NUMBER_OF_CARDS_IN_DECK / players.size)
             .mapIndexed { idx, cards -> PlayerWithCards(players[idx], cards) }
     }
 }
