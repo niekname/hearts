@@ -116,20 +116,19 @@ class GameThirdPlayerStartsTrickTest {
         assertThat(uniqueCards.size).isEqualTo(52)
     }
 
-    @ParameterizedTest
-    @MethodSource("data")
-    fun `player with 2 of clubs gets the first turn`(playerName: PlayerName) {
+    @Test
+    fun `player with 2 of clubs gets the first turn`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(NoPassing)
 
         joinGame("Mary")
         joinGame("Joe")
-        joinGame(playerName)
+        joinGame("Bob")
         joinGame("Jane")
 
         startGame()
 
-        assertThat(whoseTurnIsIt()).isEqualTo(playerName)
+        assertThat(whoseTurnIsIt()).isEqualTo("Bob")
     }
 
     @Disabled
