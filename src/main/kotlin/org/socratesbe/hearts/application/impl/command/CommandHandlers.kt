@@ -27,11 +27,12 @@ internal class StartGameHandler(private val game: Game) : CommandHandler<StartGa
 
 internal class PlayCardHandler(private val game: Game) : CommandHandler<PlayCardResponse, PlayCard> {
     override fun execute(command: PlayCard): PlayCardResponse {
-        return when {
-            game.canPlayCard(command.playedBy) -> PlayedCard
-            else -> CouldNotPlayCard("It's not ${command.playedBy}'s turn to play")
+        try {
+            game.playCard(command.playedBy, command.card)
+            return PlayedCard
+        } catch (exception: RuntimeException) {
+            return CouldNotPlayCard(exception.message!!)
         }
-
     }
 }
 

@@ -37,8 +37,21 @@ class Game(private val dealer: Dealer) {
 
     fun whoseTurnIsIt() = whoStartsTheGame()
 
-    fun canPlayCard(playerName: PlayerName) =
-        whoseTurnIsIt() == playerName
+    fun playCard(playedBy: PlayerName, playedCard: Card) {
+        validateItsPlayersTurn(playedBy)
+        validatePlayerHasCard(playedCard, playedBy)
+    }
+
+    private fun validateItsPlayersTurn(playedBy: PlayerName) {
+        if (whoseTurnIsIt() != playedBy) throw RuntimeException("It's not ${playedBy}'s turn to play")
+    }
+
+    private fun validatePlayerHasCard(
+        playedCard: Card,
+        playedBy: PlayerName
+    ) {
+        if (playedCard !in cardsInHandOf(playedBy)) throw RuntimeException("$playedBy does not have $playedCard in their hand")
+    }
 
     private fun whoStartsTheGame() =
         events.filterIsInstance<CardsDealt>().first { TWO of CLUBS in it.cards }.player.name
