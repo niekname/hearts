@@ -163,7 +163,6 @@ class GameThirdPlayerStartsTrickTest {
         assertThat(result).isEqualTo(CouldNotPlayCard("Bob does not have K♥️ in their hand"))
     }
 
-    @Disabled
     @Test
     fun `first player cannot play card different than two of clubs on first turn`() {
         onDeal(::dealFixedCards)

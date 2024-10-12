@@ -6,6 +6,7 @@ import org.socratesbe.hearts.vocabulary.Symbol.TWO
 
 class Game(private val dealer: Dealer) {
     private val events: MutableList<DomainEvent> = mutableListOf()
+    private val FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND = TWO of CLUBS
 
     fun playerJoins(name: PlayerName) {
         events += PlayerJoined(Player(name))
@@ -35,11 +36,12 @@ class Game(private val dealer: Dealer) {
 
     private fun players() = events.filterIsInstance<PlayerJoined>().map { it.player }
 
-    fun whoseTurnIsIt() = whoStartsTheGame()
+    fun whoseTurnIsIt() = whoStartsTheRound()
 
     fun playCard(playedBy: PlayerName, playedCard: Card) {
         validateItsPlayersTurn(playedBy)
         validatePlayerHasCard(playedCard, playedBy)
+        validateFirstCardOfRound(playedCard, playedBy)
     }
 
     private fun validateItsPlayersTurn(playedBy: PlayerName) {
@@ -53,8 +55,17 @@ class Game(private val dealer: Dealer) {
         if (playedCard !in cardsInHandOf(playedBy)) throw RuntimeException("$playedBy does not have $playedCard in their hand")
     }
 
-    private fun whoStartsTheGame() =
-        events.filterIsInstance<CardsDealt>().first { TWO of CLUBS in it.cards }.player.name
+    private fun validateFirstCardOfRound(
+        playedCard: Card,
+        playedBy: PlayerName
+    ) {
+        if (playedCard != FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND) throw RuntimeException("$playedBy must play $FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND on the first turn")
+    }
+
+    private fun whoStartsTheRound() =
+        events.filterIsInstance<CardsDealt>()
+            .first { FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND in it.cards }
+            .player.name
 
     companion object {
         const val NUMBER_OF_PLAYERS = 4
