@@ -1,8 +1,7 @@
 package org.socratesbe.hearts.domain
 
-import org.socratesbe.hearts.vocabulary.*
-import org.socratesbe.hearts.vocabulary.Suit.CLUBS
-import org.socratesbe.hearts.vocabulary.Symbol.TWO
+import org.socratesbe.hearts.domain.Suit.CLUBS
+import org.socratesbe.hearts.domain.Symbol.TWO
 
 class Game(private val dealer: Dealer) {
     private val events: MutableList<DomainEvent> = mutableListOf()
@@ -18,39 +17,11 @@ class Game(private val dealer: Dealer) {
         events += GameStarted
     }
 
-    fun hasStarted() = events.contains(GameStarted)
-
-    fun cardsInHandOf(playerName: PlayerName): List<Card> =
-        events.filterIsInstance<CardsDealt>()
-            .first { it.player.name == playerName }
-            .cards
-
-
-    private fun hasEnoughPlayers() = events.filterIsInstance<PlayerJoined>().size == NUMBER_OF_PLAYERS
-
     private fun dealCards() {
         dealer.dealCardsFor(players())
             .map { CardsDealt(it.player, it.cards) }
             .forEach { events += it }
     }
-
-    private fun players() = events.filterIsInstance<PlayerJoined>().map { it.player }
-
-    fun whoseTurnIsIt(): PlayerName {
-        if (isFirstCardOfRound())
-            return whoStartsTheRound()
-        else
-            return nextPlayer().name
-    }
-
-    private fun nextPlayer(): Player {
-        val lastPlayer = findLastCardPlayedPlayer()
-        val lastPlayerIdx = players().indexOf(lastPlayer)
-        return players()[(lastPlayerIdx + 1) % NUMBER_OF_PLAYERS]
-    }
-
-    private fun findLastCardPlayedPlayer() =
-        events.filterIsInstance<CardPlayed>().last().player
 
     fun playCard(playedBy: PlayerName, playedCard: Card) {
         validateItsPlayersTurn(playedBy)
@@ -59,6 +30,36 @@ class Game(private val dealer: Dealer) {
 
         events += CardPlayed(Player(playedBy))
     }
+
+    fun hasStarted() = events.contains(GameStarted)
+
+    fun cardsInHandOf(playerName: PlayerName): List<Card> =
+        events.filterIsInstance<CardsDealt>()
+            .first { it.player.name == playerName }
+            .cards
+
+    private fun hasEnoughPlayers() = events.filterIsInstance<PlayerJoined>().size == NUMBER_OF_PLAYERS
+
+    private fun players() = events.filterIsInstance<PlayerJoined>().map { it.player }
+
+    fun whoseTurnIsIt() =
+        if (isFirstCardOfRound()) whoStartsTheRound() else nextPlayer().name
+
+    private fun isFirstCardOfRound() = events.filterIsInstance<CardPlayed>().isEmpty()
+
+    private fun whoStartsTheRound() =
+        events.filterIsInstance<CardsDealt>()
+            .first { FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND in it.cards }
+            .player.name
+
+    private fun nextPlayer(): Player {
+        val lastPlayer = lastPlayer()
+        val lastPlayerIdx = players().indexOf(lastPlayer)
+        return players()[(lastPlayerIdx + 1) % NUMBER_OF_PLAYERS]
+    }
+
+    private fun lastPlayer() =
+        events.filterIsInstance<CardPlayed>().last().player
 
     private fun validateItsPlayersTurn(playedBy: PlayerName) {
         if (whoseTurnIsIt() != playedBy) throw RuntimeException("It's not ${playedBy}'s turn to play")
@@ -78,25 +79,7 @@ class Game(private val dealer: Dealer) {
         if (isFirstCardOfRound() && playedCard != FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND) throw RuntimeException("$playedBy must play $FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND on the first turn")
     }
 
-    private fun isFirstCardOfRound() = events.filterIsInstance<CardPlayed>().isEmpty()
-
-    private fun whoStartsTheRound() =
-        events.filterIsInstance<CardsDealt>()
-            .first { FIRST_CARD_THAT_NEEDS_TO_BE_PLAYED_IN_ROUND in it.cards }
-            .player.name
-
     companion object {
         const val NUMBER_OF_PLAYERS = 4
     }
 }
-
-data class PlayerJoined(val player: Player) : DomainEvent
-data class CardsDealt(val player: Player, val cards: List<Card>) : DomainEvent
-data object GameStarted : DomainEvent
-data class CardPlayed(val player: Player) : DomainEvent
-interface DomainEvent
-
-interface Dealer {
-    fun dealCardsFor(players: List<Player>): List<PlayerWithCards>
-}
-

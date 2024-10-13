@@ -1,7 +1,7 @@
 package org.socratesbe.hearts.application.api.command
 
-import org.socratesbe.hearts.vocabulary.Card
-import org.socratesbe.hearts.vocabulary.PlayerName
+import org.socratesbe.hearts.domain.Card
+import org.socratesbe.hearts.domain.PlayerName
 
 data class PlayCard(val card: Card, val playedBy: PlayerName): Command<PlayCardResponse>
 

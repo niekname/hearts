@@ -13,10 +13,10 @@ import org.socratesbe.hearts.domain.Dealer
 import org.socratesbe.hearts.domain.Game
 import org.socratesbe.hearts.domain.NoPassing
 import org.socratesbe.hearts.domain.PassingRule
-import org.socratesbe.hearts.vocabulary.Card
-import org.socratesbe.hearts.vocabulary.Player
-import org.socratesbe.hearts.vocabulary.PlayerName
-import org.socratesbe.hearts.vocabulary.PlayerWithCards
+import org.socratesbe.hearts.domain.Card
+import org.socratesbe.hearts.domain.Player
+import org.socratesbe.hearts.domain.PlayerName
+import org.socratesbe.hearts.domain.PlayerWithCards
 import java.util.stream.Stream
 
 class GameSecondPlayerStartsTrickTest {

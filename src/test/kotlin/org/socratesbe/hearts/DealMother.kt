@@ -1,24 +1,24 @@
 package org.socratesbe.hearts
 
-import org.socratesbe.hearts.vocabulary.Suit.CLUBS
-import org.socratesbe.hearts.vocabulary.Suit.DIAMONDS
-import org.socratesbe.hearts.vocabulary.Suit.HEARTS
-import org.socratesbe.hearts.vocabulary.Suit.SPADES
-import org.socratesbe.hearts.vocabulary.Symbol.ACE
-import org.socratesbe.hearts.vocabulary.Symbol.EIGHT
-import org.socratesbe.hearts.vocabulary.Symbol.FIVE
-import org.socratesbe.hearts.vocabulary.Symbol.FOUR
-import org.socratesbe.hearts.vocabulary.Symbol.JACK
-import org.socratesbe.hearts.vocabulary.Symbol.KING
-import org.socratesbe.hearts.vocabulary.Symbol.NINE
-import org.socratesbe.hearts.vocabulary.Symbol.QUEEN
-import org.socratesbe.hearts.vocabulary.Symbol.SEVEN
-import org.socratesbe.hearts.vocabulary.Symbol.SIX
-import org.socratesbe.hearts.vocabulary.Symbol.TEN
-import org.socratesbe.hearts.vocabulary.Symbol.THREE
-import org.socratesbe.hearts.vocabulary.Symbol.TWO
-import org.socratesbe.hearts.vocabulary.PlayerName
-import org.socratesbe.hearts.vocabulary.of
+import org.socratesbe.hearts.domain.Suit.CLUBS
+import org.socratesbe.hearts.domain.Suit.DIAMONDS
+import org.socratesbe.hearts.domain.Suit.HEARTS
+import org.socratesbe.hearts.domain.Suit.SPADES
+import org.socratesbe.hearts.domain.Symbol.ACE
+import org.socratesbe.hearts.domain.Symbol.EIGHT
+import org.socratesbe.hearts.domain.Symbol.FIVE
+import org.socratesbe.hearts.domain.Symbol.FOUR
+import org.socratesbe.hearts.domain.Symbol.JACK
+import org.socratesbe.hearts.domain.Symbol.KING
+import org.socratesbe.hearts.domain.Symbol.NINE
+import org.socratesbe.hearts.domain.Symbol.QUEEN
+import org.socratesbe.hearts.domain.Symbol.SEVEN
+import org.socratesbe.hearts.domain.Symbol.SIX
+import org.socratesbe.hearts.domain.Symbol.TEN
+import org.socratesbe.hearts.domain.Symbol.THREE
+import org.socratesbe.hearts.domain.Symbol.TWO
+import org.socratesbe.hearts.domain.PlayerName
+import org.socratesbe.hearts.domain.of
 
 object DealMother {
     fun dealFixedCards(player: PlayerName) = when (player) {

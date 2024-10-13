@@ -7,10 +7,8 @@ import org.socratesbe.hearts.application.api.query.Query
 import org.socratesbe.hearts.application.api.query.WhatIsScoreOfPlayer
 import org.socratesbe.hearts.application.api.query.WhoseTurnIsIt
 import org.socratesbe.hearts.domain.Game
-import org.socratesbe.hearts.vocabulary.Card
-import org.socratesbe.hearts.vocabulary.PlayerName
-import org.socratesbe.hearts.vocabulary.Suit
-import org.socratesbe.hearts.vocabulary.Symbol
+import org.socratesbe.hearts.domain.Card
+import org.socratesbe.hearts.domain.PlayerName
 
 fun interface QueryHandler<Result, Q : Query<Result>> {
     fun execute(query: Q): Result

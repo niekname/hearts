@@ -20,29 +20,26 @@ import org.socratesbe.hearts.application.api.query.HasGameEnded
 import org.socratesbe.hearts.application.api.query.HasGameStarted
 import org.socratesbe.hearts.application.api.query.WhatIsScoreOfPlayer
 import org.socratesbe.hearts.application.api.query.WhoseTurnIsIt
-import org.socratesbe.hearts.vocabulary.Suit.CLUBS
-import org.socratesbe.hearts.vocabulary.Suit.DIAMONDS
-import org.socratesbe.hearts.vocabulary.Suit.HEARTS
-import org.socratesbe.hearts.vocabulary.Suit.SPADES
-import org.socratesbe.hearts.vocabulary.Symbol.ACE
-import org.socratesbe.hearts.vocabulary.Symbol.EIGHT
-import org.socratesbe.hearts.vocabulary.Symbol.FIVE
-import org.socratesbe.hearts.vocabulary.Symbol.FOUR
-import org.socratesbe.hearts.vocabulary.Symbol.KING
-import org.socratesbe.hearts.vocabulary.Symbol.NINE
-import org.socratesbe.hearts.vocabulary.Symbol.QUEEN
-import org.socratesbe.hearts.vocabulary.Symbol.SIX
-import org.socratesbe.hearts.vocabulary.Symbol.TEN
-import org.socratesbe.hearts.vocabulary.Symbol.THREE
-import org.socratesbe.hearts.vocabulary.Symbol.TWO
+import org.socratesbe.hearts.domain.Suit.CLUBS
+import org.socratesbe.hearts.domain.Suit.DIAMONDS
+import org.socratesbe.hearts.domain.Suit.HEARTS
+import org.socratesbe.hearts.domain.Suit.SPADES
+import org.socratesbe.hearts.domain.Symbol.ACE
+import org.socratesbe.hearts.domain.Symbol.EIGHT
+import org.socratesbe.hearts.domain.Symbol.FIVE
+import org.socratesbe.hearts.domain.Symbol.FOUR
+import org.socratesbe.hearts.domain.Symbol.KING
+import org.socratesbe.hearts.domain.Symbol.NINE
+import org.socratesbe.hearts.domain.Symbol.QUEEN
+import org.socratesbe.hearts.domain.Symbol.SIX
+import org.socratesbe.hearts.domain.Symbol.TEN
+import org.socratesbe.hearts.domain.Symbol.THREE
+import org.socratesbe.hearts.domain.Symbol.TWO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.MethodSource
 import org.socratesbe.hearts.domain.*
-import org.socratesbe.hearts.vocabulary.*
 import java.util.stream.Stream
 
 class GameThirdPlayerStartsTrickTest {
@@ -51,7 +48,7 @@ class GameThirdPlayerStartsTrickTest {
 
     class FixedDealer : Dealer {
         override fun dealCardsFor(players: List<Player>): List<PlayerWithCards> {
-            return players.map { PlayerWithCards(it, dealFixedCards(it.name))}
+            return players.map { PlayerWithCards(it, dealFixedCards(it.name)) }
         }
     }
 

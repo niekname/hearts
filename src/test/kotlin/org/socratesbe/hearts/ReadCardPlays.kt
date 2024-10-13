@@ -1,9 +1,9 @@
 package org.socratesbe.hearts
 
 import org.socratesbe.hearts.application.api.command.PlayCard
-import org.socratesbe.hearts.vocabulary.Card
-import org.socratesbe.hearts.vocabulary.Suit
-import org.socratesbe.hearts.vocabulary.Symbol
+import org.socratesbe.hearts.domain.Card
+import org.socratesbe.hearts.domain.Suit
+import org.socratesbe.hearts.domain.Symbol
 import java.io.InputStream
 import java.util.Scanner
 

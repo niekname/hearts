@@ -12,8 +12,8 @@ import org.socratesbe.hearts.application.api.query.HasGameEnded
 import org.socratesbe.hearts.application.api.query.Query
 import org.socratesbe.hearts.application.api.query.WhatIsScoreOfPlayer
 import org.socratesbe.hearts.application.api.query.WhoseTurnIsIt
-import org.socratesbe.hearts.vocabulary.Card
-import org.socratesbe.hearts.vocabulary.PlayerName
+import org.socratesbe.hearts.domain.Card
+import org.socratesbe.hearts.domain.PlayerName
 
 fun main() {
     org.socratesbe.hearts.Application.run()

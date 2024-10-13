@@ -1,6 +1,6 @@
 package org.socratesbe.hearts.application.api.command
 
-import org.socratesbe.hearts.vocabulary.PlayerName
+import org.socratesbe.hearts.domain.PlayerName
 
 data class MakePlayerJoinGame(val player: PlayerName) : Command<PlayerJoinResponse>
 
