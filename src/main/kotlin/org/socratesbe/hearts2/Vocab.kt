@@ -1,0 +1,55 @@
+package org.socratesbe.hearts2
+
+typealias PlayerName = String
+
+data class Players(val player1: Player, val player2: Player, val player3: Player, val player4: Player) {
+    val size = 4
+    fun atIndex(idx: Int) =
+        when (idx) {
+            0 -> player1
+            1 -> player2
+            2 -> player3
+            3 -> player4
+            else -> throw RuntimeException()
+        }
+}
+
+data class Player(val name: PlayerName)
+data class PlayerWithCards(val player: Player, val cards: Set<Card>)
+
+data class Deck(
+    val cards: List<Card> =
+        Suit.entries.flatMap { suit ->
+            Symbol.entries.map { Card(suit, it) }
+        }
+)
+
+data class Card(val suit: Suit, val symbol: Symbol) {
+    override fun toString() = "$symbol$suit"
+}
+
+enum class Suit(private val value: String) {
+    HEARTS("♥️"), DIAMONDS("♦️"), CLUBS("♣️"), SPADES("♠️");
+
+    override fun toString() = this.value
+}
+
+enum class Symbol(private val value: String) {
+    TWO("2"),
+    THREE("3"),
+    FOUR("4"),
+    FIVE("5"),
+    SIX("6"),
+    SEVEN("7"),
+    EIGHT("8"),
+    NINE("9"),
+    TEN("10"),
+    JACK("J"),
+    QUEEN("Q"),
+    KING("K"),
+    ACE("A");
+
+    override fun toString() = this.value
+}
+
+infix fun Symbol.of(suit: Suit): Card = Card(suit, this)
