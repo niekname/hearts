@@ -1,56 +1,36 @@
 package org.socratesbe.hearts
 
-import org.socratesbe.hearts.DealMother.dealFixedCards
-import org.socratesbe.hearts.DealMother.maryForcedToPlayHeartsOnSecondRound
-import org.socratesbe.hearts.DealMother.maryHasNoClubs
-import org.socratesbe.hearts.DealMother.maryHasOnlyHearts
-import org.socratesbe.hearts.application.api.command.CouldNotPassCards
-import org.socratesbe.hearts.application.api.command.CouldNotPlayCard
-import org.socratesbe.hearts.application.api.command.GameHasNotStarted
-import org.socratesbe.hearts.application.api.command.GameHasStarted
-import org.socratesbe.hearts.application.api.command.MakePlayerJoinGame
-import org.socratesbe.hearts.application.api.command.PassCards
-import org.socratesbe.hearts.application.api.command.PlayCard
-import org.socratesbe.hearts.application.api.command.PlayedCard
-import org.socratesbe.hearts.application.api.command.PlayerCouldNotJoin
-import org.socratesbe.hearts.application.api.command.StartGame
-import org.socratesbe.hearts.application.api.command.StartGameResponse
-import org.socratesbe.hearts.application.api.query.CardsInHandOf
-import org.socratesbe.hearts.application.api.query.HasGameEnded
-import org.socratesbe.hearts.application.api.query.HasGameStarted
-import org.socratesbe.hearts.application.api.query.WhatIsScoreOfPlayer
-import org.socratesbe.hearts.application.api.query.WhoseTurnIsIt
-import org.socratesbe.hearts.domain.Suit.CLUBS
-import org.socratesbe.hearts.domain.Suit.DIAMONDS
-import org.socratesbe.hearts.domain.Suit.HEARTS
-import org.socratesbe.hearts.domain.Suit.SPADES
-import org.socratesbe.hearts.domain.Symbol.ACE
-import org.socratesbe.hearts.domain.Symbol.EIGHT
-import org.socratesbe.hearts.domain.Symbol.FIVE
-import org.socratesbe.hearts.domain.Symbol.FOUR
-import org.socratesbe.hearts.domain.Symbol.KING
-import org.socratesbe.hearts.domain.Symbol.NINE
-import org.socratesbe.hearts.domain.Symbol.QUEEN
-import org.socratesbe.hearts.domain.Symbol.SIX
-import org.socratesbe.hearts.domain.Symbol.TEN
-import org.socratesbe.hearts.domain.Symbol.THREE
-import org.socratesbe.hearts.domain.Symbol.TWO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.provider.Arguments
+import org.socratesbe.hearts.DealMother.dealCardsSoJoeHas2ofClubs
+import org.socratesbe.hearts.DealMother.dealFixedCards
+import org.socratesbe.hearts.DealMother.maryForcedToPlayHeartsOnSecondRound
+import org.socratesbe.hearts.DealMother.maryHasNoClubs
+import org.socratesbe.hearts.DealMother.maryHasOnlyHearts
+import org.socratesbe.hearts.application.api.command.*
+import org.socratesbe.hearts.application.api.query.*
 import org.socratesbe.hearts.domain.*
+import org.socratesbe.hearts.domain.Suit.*
+import org.socratesbe.hearts.domain.Symbol.*
 import java.util.stream.Stream
 
-class GameThirdPlayerStartsTrickTest {
+class GameTest {
 
-    private val context = Context(Game(FixedDealer()))
+    private var context = Context(Game(DefaultFixedDealer()))
 
-    class FixedDealer : Dealer {
+    class DefaultFixedDealer : Dealer {
         override fun dealCardsFor(players: List<Player>): List<PlayerWithCards> {
             return players.map { PlayerWithCards(it, dealFixedCards(it.name)) }
         }
     }
+
+    class JoeStartsFixedDealer : Dealer {
+        override fun dealCardsFor(players: List<Player>) =
+            players.map { PlayerWithCards(it, dealCardsSoJoeHas2ofClubs(it.name)) }
+    }
+
 
     @Test
     fun `game can start when exactly four players have joined`() {
@@ -126,6 +106,23 @@ class GameThirdPlayerStartsTrickTest {
         startGame()
 
         assertThat(whoseTurnIsIt()).isEqualTo("Bob")
+    }
+
+    @Test
+    fun `player with 2 of clubs gets the first turn - Joe`() {
+        context = Context(Game(JoeStartsFixedDealer()))
+
+        onDeal(::dealFixedCards)
+        setPassingRuleTo(NoPassing)
+
+        joinGame("Mary")
+        joinGame("Joe")
+        joinGame("Bob")
+        joinGame("Jane")
+
+        startGame()
+
+        assertThat(whoseTurnIsIt()).isEqualTo("Joe")
     }
 
     @Test
@@ -594,7 +591,8 @@ class GameThirdPlayerStartsTrickTest {
         cardPlays.forEach(this::playCard)
     }
 
-    private fun passCards(passedBy: PlayerName, cards: Set<Card>) = context.commandExecutor.execute(PassCards(cards, passedBy))
+    private fun passCards(passedBy: PlayerName, cards: Set<Card>) =
+        context.commandExecutor.execute(PassCards(cards, passedBy))
 
     private fun playCard(player: PlayerName, card: Card) = playCard(PlayCard(card, player))
 
