@@ -15,7 +15,9 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
 }
 
 data class Player(val name: PlayerName)
-data class PlayerWithCards(val player: Player, val cards: Set<Card>)
+data class PlayerWithCards(val player: Player, val cards: Set<Card>) {
+    fun hasCard(card: Card) = cards.contains(card)
+}
 
 data class Deck(
     val cards: List<Card> =

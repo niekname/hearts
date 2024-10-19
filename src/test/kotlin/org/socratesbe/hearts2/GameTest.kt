@@ -9,18 +9,12 @@ import org.socratesbe.hearts2.Symbol.*
 class GameTest {
 
     @Test
-    fun `should start game`() {
-        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
-        val game = Game.start(players)
-        assertThat(game.events.first()).isEqualTo(GameStarted)
-    }
-
-    @Test
     fun `each player is dealt 13 unique cards on game start`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.start(players)
 
-        val cardsDealt = game.events[1] as CardsDealt
+        assertThat(game.events.first()).isEqualTo(GameStarted(players))
+        val cardsDealt = game.events.last() as CardsDealt
 
         assertThat(cardsDealt.players).isEqualTo(players)
         assertThat(cardsDealt.allCards).containsAll(Deck().cards)
@@ -34,16 +28,50 @@ class GameTest {
     // TODO add test to make sure cards are shuffled
 
     @Test
-    fun `player who is not on turn cannot play a card`() {
+    fun `player with TWO of CLUBS starts the round`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
-        val game = Game.start(players)
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(maryCards, joeCards, bobCards, janeCards)
+        )
 
-        val throwable = catchThrowable { game.playCard(Player("Joe"), KING of HEARTS) }
+        game.playCard(Player("Bob"), TWO of CLUBS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Bob"), TWO of CLUBS))
+    }
+
+    @Test
+    fun `TWO of CLUBS must be the first card played in the round`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(maryCards, joeCards, bobCards, janeCards)
+        )
+
+        val throwable = catchThrowable { game.playCard(Player("Bob"), SIX of DIAMONDS) }
 
         assertThat(throwable)
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("It's not Joe's turn to play")
+            .hasMessage("${TWO of CLUBS} must be the first card played in the round")
     }
+
+    @Test
+    fun `player cannot play a card they don't have in their hand`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(maryCards, joeCards, bobCards, janeCards)
+        )
+
+        val throwable = catchThrowable { game.playCard(Player("Mary"), TWO of CLUBS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Mary does not have ${TWO of CLUBS} in their hand")
+    }
+
+    // TODO test player sequence?
 
     companion object {
         private val maryCards = PlayerWithCards(
