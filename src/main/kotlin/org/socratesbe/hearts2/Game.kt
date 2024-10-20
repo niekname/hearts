@@ -73,13 +73,11 @@ class Game private constructor(events: List<Event> = emptyList()) {
             throw RuntimeException("${player.name} must follow leading suit")
     }
 
-    private fun cannotFollowSuit(player: Player, suit: Suit)
-        = cardsOfPlayer(player).none { it.suit == suit }
+    private fun cannotFollowSuit(player: Player, suit: Suit) =
+        cardsOfPlayer(player).none { it.suit == suit }
 
-    private fun cardsOfPlayer(player: Player): Set<Card> {
-        val cardsDealt = _events.filterIsInstance<CardsDealt>().first()
-        return cardsDealt.cardsForPlayer(player)
-    }
+    private fun cardsOfPlayer(player: Player) =
+        cardsDealt().cardsForPlayer(player)
 
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
         if (cardsPlayed().contains(card))
@@ -101,11 +99,14 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun players() =
         _events.filterIsInstance<GameStarted>().first().players
 
+    private fun cardsDealt() =
+        _events.filterIsInstance<CardsDealt>().first()
+
     private fun handHasStarted() =
         _events.filterIsInstance<CardPlayed>().isNotEmpty()
 
     private fun playerHasCard(player: Player, card: Card) =
-        _events.filterIsInstance<CardsDealt>().first().whoHasCard(card) == player
+        cardsDealt().whoHasCard(card) == player
 
     private fun lastPlayer() =
         _events.filterIsInstance<CardPlayed>().last().player
