@@ -25,7 +25,20 @@ class GameTest {
         assertThat(cardsDealt.player4WithCards.cards).hasSize(13)
     }
 
-    // TODO add test to make sure cards are shuffled
+    @Test
+    fun `cards are shuffled`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.start(players)
+        val game2 = Game.start(players)
+
+        val game1Cards = game.events.last() as CardsDealt
+        val game2Cards = game2.events.last() as CardsDealt
+
+        assertThat(game1Cards.player1WithCards).isNotEqualTo(game2Cards.player1WithCards)
+        assertThat(game1Cards.player2WithCards).isNotEqualTo(game2Cards.player2WithCards)
+        assertThat(game1Cards.player3WithCards).isNotEqualTo(game2Cards.player3WithCards)
+        assertThat(game1Cards.player4WithCards).isNotEqualTo(game2Cards.player4WithCards)
+    }
 
     @Test
     fun `player with TWO of CLUBS starts the round`() {

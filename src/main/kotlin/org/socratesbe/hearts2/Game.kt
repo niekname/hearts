@@ -20,7 +20,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun dealCards() {
         val deck = Deck()
-        val cards = deck.cards.chunked(deck.cards.size / players().size)
+        val cards = deck.cards.shuffled().chunked(deck.cards.size / players().size)
             .mapIndexed { idx, cards -> PlayerWithCards(players().atIndex(idx), cards.toSet()) }
         _events += CardsDealt(cards[0], cards[1], cards[2], cards[3])
     }
@@ -28,7 +28,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     /* TODO if startRound would be a command from the outside,
         you would not need to pass the card, only the player.
         An extra check in the playCard would be needed that checks
-        if the round has started*/
+        if the round has started */
     fun playCard(player: Player, card: Card) {
         when {
             roundHasStarted() -> continueRound(player, card)
