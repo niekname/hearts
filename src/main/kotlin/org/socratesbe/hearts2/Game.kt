@@ -1,6 +1,7 @@
 package org.socratesbe.hearts2
 
 import org.socratesbe.hearts2.Suit.CLUBS
+import org.socratesbe.hearts2.Suit.HEARTS
 import org.socratesbe.hearts2.Symbol.TWO
 
 class Game private constructor(events: List<Event> = emptyList()) {
@@ -46,6 +47,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         validatePlayerHasCard(player, card)
         validatePlayersTurn(player)
         validateLeadingSuitIsBeingFollowed(player, card)
+        validateHeartsAreNotAllowedInFirstTrick(card)
         validateCardHasNotYetBeenPlayed(card)
         _events += CardPlayed(player, card)
     }
@@ -78,6 +80,11 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun cardsOfPlayer(player: Player) =
         cardsDealt().cardsForPlayer(player)
+
+    private fun validateHeartsAreNotAllowedInFirstTrick(card: Card) {
+        if (card.suit == HEARTS)
+            throw RuntimeException("Cannot play hearts on the first trick")
+    }
 
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
         if (cardsPlayed().contains(card))

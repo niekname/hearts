@@ -2,7 +2,6 @@ package org.socratesbe.hearts2
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.socratesbe.hearts2.Suit.*
 import org.socratesbe.hearts2.Symbol.*
@@ -150,12 +149,11 @@ class GameTest {
     }
 
     @Test
-    @Disabled
     fun `hearts cannot be played in the first trick`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            CardsDealt(maryCards, joeCards, bobCards, janeCards),
+            CardsDealt(maryCardsNoClubsJane, joeCardsNoClubsJane, bobCardsNoClubsJane, janeCardsNoClubsJane),
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
 
