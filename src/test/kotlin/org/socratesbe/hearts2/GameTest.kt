@@ -2,6 +2,7 @@ package org.socratesbe.hearts2
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.socratesbe.hearts2.Suit.*
 import org.socratesbe.hearts2.Symbol.*
@@ -133,6 +134,23 @@ class GameTest {
     }
 
     @Test
+    fun `player can play another card if they cannot follow leading suit`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(maryCardsNoClubsJane, joeCardsNoClubsJane, bobCardsNoClubsJane, janeCardsNoClubsJane),
+            CardPlayed(Player("Bob"), TWO of CLUBS)
+        )
+
+        game.playCard(Player("Jane"), QUEEN of SPADES)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Jane"), QUEEN of SPADES))
+
+    }
+
+    @Test
+    @Disabled
     fun `hearts cannot be played in the first trick`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
@@ -259,5 +277,75 @@ class GameTest {
                 JACK of HEARTS
             )
         )
+
+        private val maryCardsNoClubsJane = PlayerWithCards(
+            Player("Mary"), setOf(
+                THREE of CLUBS,
+                THREE of DIAMONDS,
+                SIX of HEARTS,
+                TEN of HEARTS,
+                TEN of CLUBS,
+                TEN of SPADES,
+                SIX of CLUBS,
+                FIVE of DIAMONDS,
+                ACE of DIAMONDS,
+                ACE of CLUBS,
+                SEVEN of DIAMONDS,
+                NINE of SPADES,
+                ACE of HEARTS
+            )
+        )
+        private val joeCardsNoClubsJane = PlayerWithCards(
+            Player("Joe"), setOf(
+                QUEEN of CLUBS,
+                TWO of HEARTS,
+                EIGHT of HEARTS,
+                SEVEN of HEARTS,
+                NINE of CLUBS,
+                QUEEN of HEARTS,
+                FOUR of CLUBS,
+                SEVEN of SPADES,
+                FIVE of HEARTS,
+                EIGHT of CLUBS,
+                TWO of SPADES,
+                EIGHT of DIAMONDS,
+                FIVE of SPADES
+            )
+        )
+        private val bobCardsNoClubsJane = PlayerWithCards(
+            Player("Bob"), setOf(
+                SIX of DIAMONDS,
+                TWO of CLUBS,
+                FIVE of CLUBS,
+                QUEEN of DIAMONDS,
+                SIX of SPADES,
+                FOUR of DIAMONDS,
+                FOUR of SPADES,
+                FOUR of HEARTS,
+                KING of CLUBS,
+                NINE of HEARTS,
+                SEVEN of CLUBS,
+                JACK of CLUBS,
+                TWO of DIAMONDS
+            )
+        )
+        private val janeCardsNoClubsJane = PlayerWithCards(
+            Player("Jane"), setOf(
+                EIGHT of SPADES,
+                TEN of DIAMONDS,
+                NINE of DIAMONDS,
+                KING of DIAMONDS,
+                KING of SPADES,
+                THREE of HEARTS,
+                JACK of SPADES,
+                QUEEN of SPADES,
+                THREE of SPADES,
+                ACE of SPADES,
+                KING of HEARTS,
+                JACK of DIAMONDS,
+                JACK of HEARTS
+            )
+        )
+
     }
 }
