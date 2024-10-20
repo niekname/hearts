@@ -155,6 +155,22 @@ class GameTest {
             .hasMessage("${TEN of CLUBS} has already been played")
     }
 
+    @Test
+    fun `player has to follow the leading suit if they can`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(maryCards, joeCards, bobCards, janeCards),
+            CardPlayed(Player("Bob"), TWO of CLUBS)
+        )
+
+        val throwable = catchThrowable { game.playCard(Player("Jane"), TEN of DIAMONDS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Jane must follow leading suit")
+    }
+
     companion object {
         private val maryCards = PlayerWithCards(
             Player("Mary"), setOf(
