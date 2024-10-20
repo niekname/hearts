@@ -59,12 +59,26 @@ class Game private constructor(events: List<Event> = emptyList()) {
     }
 
     private fun validatePlayersTurn(player: Player) {
-        if (playerIsNotAtTurn(player))
+        if (player != whoIsAtTurn())
             throw RuntimeException("It's not ${player.name}'s turn to play")
     }
 
-    private fun playerIsNotAtTurn(player: Player) =
-        player != players().playerAtLeftSideOf(lastPlayer())
+    private fun whoIsAtTurn() =
+        if (trickIsOngoing())
+            players().playerAtLeftSideOf(lastPlayer())
+        else
+            playerThatWonLastTrick()
+
+    private fun trickIsOngoing() =
+        !tricks().last().isFinished()
+
+    private fun playerThatWonLastTrick() =
+        tricks().last { it.isFinished() }.wonBy()
+
+    private fun tricks() =
+        _events.filterIsInstance<CardPlayed>()
+            .chunked(4)
+            .map { Trick(it) }
 
     private fun players() =
         _events.filterIsInstance<GameStarted>().first().players

@@ -24,8 +24,21 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
 }
 
 data class Player(val name: PlayerName)
+
 data class PlayerWithCards(val player: Player, val cards: Set<Card>) {
     fun hasCard(card: Card) = cards.contains(card)
+}
+
+// TODO add specific types for finished / unfinished trick?
+data class Trick(val cardsPlayed: List<CardPlayed>) {
+    fun isFinished() = cardsPlayed.size == 4 // TODO this is the amount of players
+    fun wonBy() = highestRankingCardInLeadingSuit().player
+    private fun highestRankingCardInLeadingSuit() =
+        cardsPlayed
+            .filter { it.card.suit == leadingSuit() }
+            .maxBy { it.card.symbol }
+
+    private fun leadingSuit() = cardsPlayed.first().card.suit
 }
 
 data class Deck(
