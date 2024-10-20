@@ -250,6 +250,7 @@ class GameTest {
 
     @Disabled
     @Test
+    // HERE
     fun `player cannot play hearts in first round when player has other options`() {
         onDeal(::maryHasNoClubs)
         setPassingRuleTo(NoPassing)
