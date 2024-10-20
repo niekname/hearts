@@ -12,6 +12,15 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
             3 -> player4
             else -> throw RuntimeException()
         }
+
+    fun playerAtLeftSideOf(lastPlayer: Player) =
+        when (lastPlayer) {
+            player1 -> player2
+            player2 -> player3
+            player3 -> player4
+            player4 -> player1
+            else -> throw RuntimeException()
+        }
 }
 
 data class Player(val name: PlayerName)

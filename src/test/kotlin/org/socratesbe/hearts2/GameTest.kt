@@ -61,17 +61,34 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            CardsDealt(maryCards, joeCards, bobCards, janeCards)
+            CardsDealt(maryCards, joeCards, bobCards, janeCards),
+            CardPlayed(Player("Bob"), TWO of CLUBS)
         )
 
-        val throwable = catchThrowable { game.playCard(Player("Mary"), TWO of CLUBS) }
+        val throwable = catchThrowable { game.playCard(Player("Jane"), TWO of CLUBS) }
 
         assertThat(throwable)
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Mary does not have ${TWO of CLUBS} in their hand")
+            .hasMessage("Jane does not have ${TWO of CLUBS} in their hand")
     }
 
-    // TODO test player sequence?
+    @Test
+    fun `player that is not to the left of the previous player cannot play next`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(maryCards, joeCards, bobCards, janeCards),
+            CardPlayed(Player("Bob"), TWO of CLUBS)
+        )
+
+        val throwable = catchThrowable { game.playCard(Player("Mary"), TEN of CLUBS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("It's not Mary's turn to play")
+    }
+
+    // TODO test player cannot play a previously played card
 
     companion object {
         private val maryCards = PlayerWithCards(
