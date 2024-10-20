@@ -25,36 +25,28 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .mapIndexed { idx, cards -> PlayerWithCards(players().atIndex(idx), cards.toSet()) }
         _events += CardsDealt(cards[0], cards[1], cards[2], cards[3])
     }
+    
+    fun playCard(player: Player, card: Card) =
+        CardPlayed(player, card)
+            .also { checkRules(it) }
+            .let { _events += it }
 
-    /* TODO if startHand would be a command from the outside,
-        you would not need to pass the card, only the player.
-        An extra check in the playCard would be needed that checks
-        if the hand has started */
-    fun playCard(player: Player, card: Card) {
-        when {
-            handHasStarted() -> continueHand(player, card)
-            else -> startHand(player, card)
+    private fun checkRules(cardPlayed: CardPlayed) {
+        validatePlayerHasCard(cardPlayed)
+        validatePlayersTurn(cardPlayed.player)
+
+        if (handHasNotStarted())
+            validateOpeningCardIsBeingPlayed(cardPlayed.card)
+        else {
+            validateLeadingSuitIsBeingFollowed(cardPlayed.player, cardPlayed.card)
+            validateHeartsAreNotAllowedInFirstTrick(cardPlayed.card)
+            validateCardHasNotYetBeenPlayed(cardPlayed.card)
         }
     }
 
-    private fun startHand(player: Player, card: Card) {
-        validatePlayerHasCard(player, OPENING_CARD)
-        validateOpeningCardIsBeingPlayed(card)
-        _events += CardPlayed(player, OPENING_CARD)
-    }
-
-    private fun continueHand(player: Player, card: Card) {
-        validatePlayerHasCard(player, card)
-        validatePlayersTurn(player)
-        validateLeadingSuitIsBeingFollowed(player, card)
-        validateHeartsAreNotAllowedInFirstTrick(card)
-        validateCardHasNotYetBeenPlayed(card)
-        _events += CardPlayed(player, card)
-    }
-
-    private fun validatePlayerHasCard(player: Player, card: Card) {
-        if (!playerHasCard(player, card))
-            throw RuntimeException("${player.name} does not have $card in their hand")
+    private fun validatePlayerHasCard(cardPlayed: CardPlayed) {
+        if (!playerHasCard(cardPlayed.player, cardPlayed.card))
+            throw RuntimeException("${cardPlayed.player.name} does not have ${cardPlayed.card} in their hand")
     }
 
     private fun validateOpeningCardIsBeingPlayed(card: Card) {
@@ -91,11 +83,11 @@ class Game private constructor(events: List<Event> = emptyList()) {
             throw RuntimeException("$card has already been played")
     }
 
-    private fun whoIsAtTurn() =
-        if (trickIsOngoing())
-            players().playerAtLeftSideOf(lastPlayer())
-        else
-            playerThatWonLastTrick()
+    private fun whoIsAtTurn() = when {
+        handHasNotStarted() -> cardsDealt().whoHasCard(OPENING_CARD)
+        trickIsOngoing() -> players().playerAtLeftSideOf(lastPlayer())
+        else -> playerThatWonLastTrick()
+    }
 
     private fun trickIsOngoing() =
         !tricks().last().isFinished()
@@ -109,8 +101,8 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun cardsDealt() =
         _events.filterIsInstance<CardsDealt>().first()
 
-    private fun handHasStarted() =
-        _events.filterIsInstance<CardPlayed>().isNotEmpty()
+    private fun handHasNotStarted() =
+        _events.filterIsInstance<CardPlayed>().isEmpty()
 
     private fun playerHasCard(player: Player, card: Card) =
         cardsDealt().whoHasCard(card) == player
