@@ -68,8 +68,17 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun validateLeadingSuitIsBeingFollowed(player: Player, card: Card) {
         val lastTrick = tricks().last()
         if (lastTrick.isFinished()) return
+        if (cannotFollowSuit(player, lastTrick.leadingSuit())) return
         if (lastTrick.leadingSuit() != card.suit)
             throw RuntimeException("${player.name} must follow leading suit")
+    }
+
+    private fun cannotFollowSuit(player: Player, suit: Suit)
+        = cardsOfPlayer(player).none { it.suit == suit }
+
+    private fun cardsOfPlayer(player: Player): Set<Card> {
+        val cardsDealt = _events.filterIsInstance<CardsDealt>().first()
+        return cardsDealt.cardsForPlayer(player)
     }
 
     private fun validateCardHasNotYetBeenPlayed(card: Card) {

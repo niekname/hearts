@@ -133,6 +133,7 @@ class GameTest {
             .hasMessage("Jane must follow leading suit")
     }
 
+    // TODO also test this after a few played cards when it is eventually no longer possible to follow suit
     @Test
     fun `player can play another card if they cannot follow leading suit`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
@@ -146,7 +147,6 @@ class GameTest {
 
         val cardPlayed = game.events.last() as CardPlayed
         assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Jane"), QUEEN of SPADES))
-
     }
 
     @Test

@@ -20,6 +20,16 @@ data class CardsDealt(
         else player4WithCards.player
     }
 
+    fun cardsForPlayer(player: Player): Set<Card> {
+        return if (player1WithCards.player == player)
+            player1WithCards.cards
+        else if (player2WithCards.player == player)
+            player2WithCards.cards
+        else if (player3WithCards.player == player)
+            player3WithCards.cards
+        else player4WithCards.cards
+    }
+
     val players: Players = Players(
         player1WithCards.player,
         player2WithCards.player,
