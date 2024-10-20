@@ -38,7 +38,7 @@ data class Trick(val cardsPlayed: List<CardPlayed>) {
             .filter { it.card.suit == leadingSuit() }
             .maxBy { it.card.symbol }
 
-    private fun leadingSuit() = cardsPlayed.first().card.suit
+    fun leadingSuit() = cardsPlayed.first().card.suit
 }
 
 data class Deck(

@@ -45,6 +45,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun continueHand(player: Player, card: Card) {
         validatePlayerHasCard(player, card)
         validatePlayersTurn(player)
+        validateLeadingSuitIsBeingFollowed(player, card)
         validateCardHasNotYetBeenPlayed(card)
         _events += CardPlayed(player, card)
     }
@@ -62,6 +63,13 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun validatePlayersTurn(player: Player) {
         if (player != whoIsAtTurn())
             throw RuntimeException("It's not ${player.name}'s turn to play")
+    }
+
+    private fun validateLeadingSuitIsBeingFollowed(player: Player, card: Card) {
+        val lastTrick = tricks().last()
+        if (lastTrick.isFinished()) return
+        if (lastTrick.leadingSuit() != card.suit)
+            throw RuntimeException("${player.name} must follow leading suit")
     }
 
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
