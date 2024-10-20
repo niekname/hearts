@@ -101,6 +101,21 @@ class GameTest {
             .hasMessage("It's not Mary's turn to play")
     }
 
+    @Test
+    fun `player that is to the left of the previous player can play next`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(maryCards, joeCards, bobCards, janeCards),
+            CardPlayed(Player("Bob"), TWO of CLUBS)
+        )
+
+        game.playCard(Player("Jane"), THREE of CLUBS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Jane"), THREE of CLUBS))
+    }
+
     // TODO test player cannot play a previously played card
 
     companion object {
