@@ -58,6 +58,7 @@ enum class Suit(private val value: String) {
     override fun toString() = this.value
 }
 
+// TODO add explicit ordinal?
 enum class Symbol(private val value: String) {
     TWO("2"),
     THREE("3"),

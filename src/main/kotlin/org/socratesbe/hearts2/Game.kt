@@ -25,24 +25,24 @@ class Game private constructor(events: List<Event> = emptyList()) {
         _events += CardsDealt(cards[0], cards[1], cards[2], cards[3])
     }
 
-    /* TODO if startRound would be a command from the outside,
+    /* TODO if startHand would be a command from the outside,
         you would not need to pass the card, only the player.
         An extra check in the playCard would be needed that checks
-        if the round has started */
+        if the hand has started */
     fun playCard(player: Player, card: Card) {
         when {
-            roundHasStarted() -> continueRound(player, card)
-            else -> startRound(player, card)
+            handHasStarted() -> continueHand(player, card)
+            else -> startHand(player, card)
         }
     }
 
-    private fun startRound(player: Player, card: Card) {
+    private fun startHand(player: Player, card: Card) {
         validatePlayerHasCard(player, OPENING_CARD)
         validateOpeningCardIsBeingPlayed(card)
         _events += CardPlayed(player, OPENING_CARD)
     }
 
-    private fun continueRound(player: Player, card: Card) {
+    private fun continueHand(player: Player, card: Card) {
         validatePlayerHasCard(player, card)
         validatePlayersTurn(player)
         _events += CardPlayed(player, card)
@@ -55,7 +55,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun validateOpeningCardIsBeingPlayed(card: Card) {
         if (card != OPENING_CARD)
-            throw RuntimeException("$OPENING_CARD must be the first card played in the round")
+            throw RuntimeException("$OPENING_CARD must be the first card played in the hand")
     }
 
     private fun validatePlayersTurn(player: Player) {
@@ -77,13 +77,13 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun tricks() =
         _events.filterIsInstance<CardPlayed>()
-            .chunked(4)
+            .chunked(4) // TODO magic number
             .map { Trick(it) }
 
     private fun players() =
         _events.filterIsInstance<GameStarted>().first().players
 
-    private fun roundHasStarted() =
+    private fun handHasStarted() =
         _events.filterIsInstance<CardPlayed>().isNotEmpty()
 
     private fun playerHasCard(player: Player, card: Card) =

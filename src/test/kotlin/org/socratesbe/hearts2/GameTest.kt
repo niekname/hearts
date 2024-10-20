@@ -41,7 +41,7 @@ class GameTest {
     }
 
     @Test
-    fun `player with TWO of CLUBS starts the round`() {
+    fun `player with TWO of CLUBS starts the hand`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
@@ -55,7 +55,7 @@ class GameTest {
     }
 
     @Test
-    fun `TWO of CLUBS must be the first card played in the round`() {
+    fun `TWO of CLUBS must be the first card played in the hand`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
@@ -66,7 +66,7 @@ class GameTest {
 
         assertThat(throwable)
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("${TWO of CLUBS} must be the first card played in the round")
+            .hasMessage("${TWO of CLUBS} must be the first card played in the hand")
     }
 
     @Test
