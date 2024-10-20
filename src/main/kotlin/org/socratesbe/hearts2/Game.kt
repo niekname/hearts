@@ -45,6 +45,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun continueHand(player: Player, card: Card) {
         validatePlayerHasCard(player, card)
         validatePlayersTurn(player)
+        validateCardHasNotYetBeenPlayed(card)
         _events += CardPlayed(player, card)
     }
 
@@ -63,6 +64,11 @@ class Game private constructor(events: List<Event> = emptyList()) {
             throw RuntimeException("It's not ${player.name}'s turn to play")
     }
 
+    private fun validateCardHasNotYetBeenPlayed(card: Card) {
+        if (cardsPlayed().contains(card))
+            throw RuntimeException("$card has already been played")
+    }
+
     private fun whoIsAtTurn() =
         if (trickIsOngoing())
             players().playerAtLeftSideOf(lastPlayer())
@@ -75,11 +81,6 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun playerThatWonLastTrick() =
         tricks().last { it.isFinished() }.wonBy()
 
-    private fun tricks() =
-        _events.filterIsInstance<CardPlayed>()
-            .chunked(4) // TODO magic number
-            .map { Trick(it) }
-
     private fun players() =
         _events.filterIsInstance<GameStarted>().first().players
 
@@ -91,4 +92,12 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun lastPlayer() =
         _events.filterIsInstance<CardPlayed>().last().player
+
+    private fun tricks() =
+        _events.filterIsInstance<CardPlayed>()
+            .chunked(4) // TODO magic number
+            .map(::Trick)
+
+    private fun cardsPlayed() =
+        _events.filterIsInstance<CardPlayed>().map { it.card }
 }
