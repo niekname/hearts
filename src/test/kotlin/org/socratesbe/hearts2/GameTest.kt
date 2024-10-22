@@ -165,6 +165,27 @@ class GameTest {
     }
 
     @Test
+    fun `player can play hearts in first round when player has no other options`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            CardsDealt(
+                maryCardsOnlyHeartsMary,
+                joeCardsOnlyHeartsMary,
+                bobCardsOnlyHeartsMary,
+                janeCardsOnlyHeartsMary
+            ),
+            CardPlayed(Player("Bob"), TWO of CLUBS),
+            CardPlayed(Player("Jane"), THREE of CLUBS)
+        )
+
+        game.playCard(Player("Mary"), TEN of HEARTS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Mary"), TEN of HEARTS))
+    }
+
+    @Test
     fun `the player that won the last trick starts the next trick`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
@@ -345,5 +366,73 @@ class GameTest {
             )
         )
 
+        private val maryCardsOnlyHeartsMary = PlayerWithCards(
+            Player("Mary"), setOf(
+                SIX of HEARTS,
+                TEN of HEARTS,
+                ACE of HEARTS,
+                TWO of HEARTS,
+                EIGHT of HEARTS,
+                SEVEN of HEARTS,
+                QUEEN of HEARTS,
+                FIVE of HEARTS,
+                FOUR of HEARTS,
+                NINE of HEARTS,
+                THREE of HEARTS,
+                KING of HEARTS,
+                JACK of HEARTS
+            )
+        )
+        private val joeCardsOnlyHeartsMary = PlayerWithCards(
+            Player("Joe"), setOf(
+                QUEEN of CLUBS,
+                NINE of CLUBS,
+                FOUR of CLUBS,
+                SEVEN of SPADES,
+                QUEEN of SPADES,
+                TWO of SPADES,
+                EIGHT of DIAMONDS,
+                FIVE of SPADES,
+                EIGHT of SPADES,
+                THREE of DIAMONDS,
+                JACK of DIAMONDS,
+                TEN of CLUBS,
+                TEN of SPADES
+            )
+        )
+        private val bobCardsOnlyHeartsMary = PlayerWithCards(
+            Player("Bob"), setOf(
+                SIX of DIAMONDS,
+                TWO of CLUBS,
+                FIVE of CLUBS,
+                QUEEN of DIAMONDS,
+                SIX of SPADES,
+                FOUR of DIAMONDS,
+                FOUR of SPADES,
+                ACE of SPADES,
+                SEVEN of CLUBS,
+                JACK of CLUBS,
+                TWO of DIAMONDS,
+                FIVE of DIAMONDS,
+                ACE of DIAMONDS
+            )
+        )
+        private val janeCardsOnlyHeartsMary = PlayerWithCards(
+            Player("Jane"), setOf(
+                THREE of CLUBS,
+                TEN of DIAMONDS,
+                NINE of DIAMONDS,
+                KING of DIAMONDS,
+                KING of SPADES,
+                JACK of SPADES,
+                EIGHT of CLUBS,
+                THREE of SPADES,
+                KING of CLUBS,
+                SIX of CLUBS,
+                ACE of CLUBS,
+                SEVEN of DIAMONDS,
+                NINE of SPADES
+            )
+        )
     }
 }
