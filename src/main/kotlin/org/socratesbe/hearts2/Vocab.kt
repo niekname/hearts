@@ -10,7 +10,7 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
             1 -> player2
             2 -> player3
             3 -> player4
-            else -> throw RuntimeException()
+            else -> error("impossible")
         }
 
     fun playerAtLeftSideOf(lastPlayer: Player) =
@@ -19,7 +19,7 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
             player2 -> player3
             player3 -> player4
             player4 -> player1
-            else -> throw RuntimeException()
+            else -> error("impossible")
         }
 }
 
