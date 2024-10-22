@@ -25,7 +25,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .mapIndexed { idx, cards -> PlayerWithCards(players().atIndex(idx), cards.toSet()) }
         _events += CardsDealt(cards[0], cards[1], cards[2], cards[3])
     }
-    
+
     fun playCard(player: Player, card: Card) =
         CardPlayed(player, card)
             .also { checkRules(it) }
@@ -39,7 +39,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
             validateOpeningCardIsBeingPlayed(cardPlayed.card)
         else {
             validateLeadingSuitIsBeingFollowed(cardPlayed.player, cardPlayed.card)
-            validateHeartsAreNotAllowedInFirstTrick(cardPlayed.card)
+            validateHeartsCanBePlayed(cardPlayed)
             validateCardHasNotYetBeenPlayed(cardPlayed.card)
         }
     }
@@ -73,8 +73,10 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun cardsOfPlayer(player: Player) =
         cardsDealt().cardsForPlayer(player)
 
-    private fun validateHeartsAreNotAllowedInFirstTrick(card: Card) {
-        if (card.suit == HEARTS)
+    private fun validateHeartsCanBePlayed(cardPlayed: CardPlayed) {
+        if (cardsOfPlayer(cardPlayed.player).all { it.suit == HEARTS })
+            return
+        if (cardPlayed.card.suit == HEARTS)
             throw RuntimeException("Cannot play hearts on the first trick")
     }
 
