@@ -67,19 +67,6 @@ class Game private constructor(events: List<Event> = emptyList()) {
             throw RuntimeException("${player.name} must follow leading suit")
     }
 
-    private fun cannotFollowSuit(player: Player, suit: Suit) =
-        cardsOfPlayer(player).none { it.suit == suit }
-
-    private fun cardsOfPlayer(player: Player) =
-        cardsDealt().cardsForPlayer(player)
-
-    private fun currentCardsOfPlayer(player: Player): Set<Card> {
-        val cardsOfPlayer = cardsOfPlayer(player)
-        val cardsPlayedByPlayer =
-            _events.filterIsInstance<CardPlayed>().filter { it.player == player }.map { it.card }.toSet()
-        return cardsOfPlayer - cardsPlayedByPlayer
-    }
-
     private fun validateHeartsCanBePlayed(cardPlayed: CardPlayed) {
         if (cardPlayed.card.suit != HEARTS) return
         if (playerHasOnlyHearts(cardPlayed.player)) return
@@ -87,15 +74,21 @@ class Game private constructor(events: List<Event> = emptyList()) {
             throw RuntimeException("$HEARTS have not been broken")
     }
 
-    private fun heartsHaveBeenBroken() = cardsPlayed().none { it.suit == HEARTS }
-
-    private fun playerHasOnlyHearts(player: Player) =
-        currentCardsOfPlayer(player).all { it.suit == HEARTS }
-
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
         if (cardsPlayed().contains(card))
             throw RuntimeException("$card has already been played")
     }
+
+    private fun cannotFollowSuit(player: Player, suit: Suit) =
+        remainingCardsInHandOf(player).none { it.suit == suit }
+
+    private fun remainingCardsInHandOf(player: Player) =
+        cardsDealt().cardsForPlayer(player) - cardsPlayedBy(player)
+
+    private fun heartsHaveBeenBroken() = cardsPlayed().none { it.suit == HEARTS }
+
+    private fun playerHasOnlyHearts(player: Player) =
+        remainingCardsInHandOf(player).all { it.suit == HEARTS }
 
     private fun whoIsAtTurn() = when {
         handHasNotStarted() -> cardsDealt().whoHasCard(OPENING_CARD)
@@ -130,5 +123,11 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .map(::Trick)
 
     private fun cardsPlayed() =
-        _events.filterIsInstance<CardPlayed>().map { it.card }
+        _events.filterIsInstance<CardPlayed>().map { it.card }.toSet()
+
+    private fun cardsPlayedBy(player: Player) =
+        _events.filterIsInstance<CardPlayed>()
+            .filter { it.player == player }
+            .map { it.card }
+            .toSet()
 }
