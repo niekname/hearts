@@ -32,6 +32,18 @@ class Game private constructor(events: List<Event> = emptyList()) {
         player3pass: PlayerWithCards,
         player4pass: PlayerWithCards
     ) {
+        player1pass.cards.forEach {
+            validatePlayerHasCard(player1pass.player, it)
+        }
+        player2pass.cards.forEach {
+            validatePlayerHasCard(player2pass.player, it)
+        }
+        player3pass.cards.forEach {
+            validatePlayerHasCard(player3pass.player, it)
+        }
+        player4pass.cards.forEach {
+            validatePlayerHasCard(player4pass.player, it)
+        }
         _events += CardsPassed
     }
 
@@ -42,7 +54,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun checkRules(cardPlayed: CardPlayed) {
         validatePassingHasHappened()
-        validatePlayerHasCard(cardPlayed)
+        validatePlayerHasCard(cardPlayed.player, cardPlayed.card)
         validatePlayersTurn(cardPlayed.player)
 
         if (handHasNotStarted())
@@ -59,9 +71,9 @@ class Game private constructor(events: List<Event> = emptyList()) {
             throw RuntimeException("Cannot play cards before passing has finished")
     }
 
-    private fun validatePlayerHasCard(cardPlayed: CardPlayed) {
-        if (!playerHasCard(cardPlayed.player, cardPlayed.card))
-            throw RuntimeException("${cardPlayed.player.name} does not have ${cardPlayed.card} in their hand")
+    private fun validatePlayerHasCard(player: Player, card: Card) {
+        if (!playerHasCard(player, card))
+            throw RuntimeException("${player.name} does not have $card")
     }
 
     private fun validateOpeningCardIsBeingPlayed(card: Card) {

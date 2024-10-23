@@ -85,7 +85,7 @@ class GameTest {
 
         assertThat(throwable)
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Jane does not have ${TWO of CLUBS} in their hand")
+            .hasMessage("Jane does not have ${TWO of CLUBS}")
     }
 
     @Test
