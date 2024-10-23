@@ -50,7 +50,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     }
 
     private fun validatePassingHasHappened() {
-        if (_events.filterIsInstance<CardsPassed>().isEmpty())
+        if (!passingHasHappened())
             throw RuntimeException("Cannot play cards before passing has finished")
     }
 
@@ -120,6 +120,9 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun handHasNotStarted() =
         _events.filterIsInstance<CardPlayed>().isEmpty()
+
+    private fun passingHasHappened() =
+        _events.filterIsInstance<CardsPassed>().isNotEmpty()
 
     private fun playerHasCard(player: Player, card: Card) =
         cardsDealt().whoHasCard(card) == player
