@@ -161,7 +161,7 @@ class GameTest {
 
         assertThat(throwable)
             .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Cannot play hearts on the first trick")
+            .hasMessage("$HEARTS have not been broken")
     }
 
     @Test

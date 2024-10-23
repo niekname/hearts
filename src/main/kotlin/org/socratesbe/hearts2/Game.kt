@@ -74,10 +74,13 @@ class Game private constructor(events: List<Event> = emptyList()) {
         cardsDealt().cardsForPlayer(player)
 
     private fun validateHeartsCanBePlayed(cardPlayed: CardPlayed) {
+        if (cardPlayed.card.suit != HEARTS) return
         if (playerHasOnlyHearts(cardPlayed.player)) return
-        if (cardPlayed.card.suit == HEARTS)
-            throw RuntimeException("Cannot play hearts on the first trick")
+        if (heartsHaveBeenBroken())
+            throw RuntimeException("$HEARTS have not been broken")
     }
+
+    private fun heartsHaveBeenBroken() = cardsPlayed().none { it.suit == HEARTS }
 
     private fun playerHasOnlyHearts(player: Player) =
         cardsOfPlayer(player).all { it.suit == HEARTS }
