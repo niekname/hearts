@@ -239,6 +239,25 @@ class GameTest {
             .hasMessage("$HEARTS have not been broken")
     }
 
+    @Test
+    fun `player can open with hearts when hearts haven't been played and player has no other options`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            maryForcedToPlayHeartsOnSecondRound,
+            CardPlayed(Player("Bob"), TWO of CLUBS)
+        )
+
+        game.playCard(Player("Jane"), THREE of CLUBS)
+        game.playCard(Player("Mary"), TEN of CLUBS)
+        game.playCard(Player("Joe"), NINE of CLUBS)
+
+        game.playCard(Player("Mary"), TEN of HEARTS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Mary"), TEN of HEARTS))
+    }
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {
@@ -414,6 +433,77 @@ class GameTest {
                     JACK of DIAMONDS,
                     TEN of CLUBS,
                     TEN of SPADES
+                )
+            ),
+            player3WithCards = PlayerWithCards(
+                Player("Bob"), setOf(
+                    SIX of DIAMONDS,
+                    TWO of CLUBS,
+                    FIVE of CLUBS,
+                    QUEEN of DIAMONDS,
+                    SIX of SPADES,
+                    FOUR of DIAMONDS,
+                    FOUR of SPADES,
+                    ACE of SPADES,
+                    SEVEN of CLUBS,
+                    JACK of CLUBS,
+                    TWO of DIAMONDS,
+                    FIVE of DIAMONDS,
+                    ACE of DIAMONDS
+                )
+            ),
+            player4WithCards = PlayerWithCards(
+                Player("Jane"), setOf(
+                    THREE of CLUBS,
+                    TEN of DIAMONDS,
+                    NINE of DIAMONDS,
+                    KING of DIAMONDS,
+                    KING of SPADES,
+                    JACK of SPADES,
+                    EIGHT of CLUBS,
+                    THREE of SPADES,
+                    KING of CLUBS,
+                    SIX of CLUBS,
+                    ACE of CLUBS,
+                    SEVEN of DIAMONDS,
+                    NINE of SPADES
+                )
+            )
+        )
+
+        private val maryForcedToPlayHeartsOnSecondRound = CardsDealt(
+            player1WithCards = PlayerWithCards(
+                Player("Mary"), setOf(
+                    TEN of HEARTS,
+                    ACE of HEARTS,
+                    TWO of HEARTS,
+                    EIGHT of HEARTS,
+                    SEVEN of HEARTS,
+                    QUEEN of HEARTS,
+                    FIVE of HEARTS,
+                    FOUR of HEARTS,
+                    NINE of HEARTS,
+                    THREE of HEARTS,
+                    KING of HEARTS,
+                    JACK of HEARTS,
+                    TEN of CLUBS
+                )
+            ),
+            player2WithCards = PlayerWithCards(
+                Player("Joe"), setOf(
+                    QUEEN of CLUBS,
+                    NINE of CLUBS,
+                    FOUR of CLUBS,
+                    SEVEN of SPADES,
+                    QUEEN of SPADES,
+                    TWO of SPADES,
+                    EIGHT of DIAMONDS,
+                    FIVE of SPADES,
+                    EIGHT of SPADES,
+                    THREE of DIAMONDS,
+                    JACK of DIAMONDS,
+                    TEN of SPADES,
+                    SIX of HEARTS,
                 )
             ),
             player3WithCards = PlayerWithCards(
