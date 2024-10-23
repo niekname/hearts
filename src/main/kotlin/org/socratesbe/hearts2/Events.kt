@@ -43,3 +43,5 @@ data class CardsDealt(
 }
 
 data class CardPlayed(val player: Player, val card: Card) : Event
+
+object CardsPassed : Event

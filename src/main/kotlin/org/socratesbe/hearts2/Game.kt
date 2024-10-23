@@ -26,12 +26,17 @@ class Game private constructor(events: List<Event> = emptyList()) {
         _events += CardsDealt(cards[0], cards[1], cards[2], cards[3])
     }
 
+    fun passCards() {
+        _events += CardsPassed
+    }
+
     fun playCard(player: Player, card: Card) =
         CardPlayed(player, card)
             .also { checkRules(it) }
             .let { _events += it }
 
     private fun checkRules(cardPlayed: CardPlayed) {
+        validatePassingHasHappened()
         validatePlayerHasCard(cardPlayed)
         validatePlayersTurn(cardPlayed.player)
 
@@ -42,6 +47,11 @@ class Game private constructor(events: List<Event> = emptyList()) {
             validateHeartsCanBePlayed(cardPlayed)
             validateCardHasNotYetBeenPlayed(cardPlayed.card)
         }
+    }
+
+    private fun validatePassingHasHappened() {
+        if (_events.filterIsInstance<CardsPassed>().isEmpty())
+            throw RuntimeException("Cannot play cards before passing has finished")
     }
 
     private fun validatePlayerHasCard(cardPlayed: CardPlayed) {
