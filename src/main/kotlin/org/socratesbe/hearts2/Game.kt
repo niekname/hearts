@@ -73,6 +73,13 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun cardsOfPlayer(player: Player) =
         cardsDealt().cardsForPlayer(player)
 
+    private fun currentCardsOfPlayer(player: Player): Set<Card> {
+        val cardsOfPlayer = cardsOfPlayer(player)
+        val cardsPlayedByPlayer =
+            _events.filterIsInstance<CardPlayed>().filter { it.player == player }.map { it.card }.toSet()
+        return cardsOfPlayer - cardsPlayedByPlayer
+    }
+
     private fun validateHeartsCanBePlayed(cardPlayed: CardPlayed) {
         if (cardPlayed.card.suit != HEARTS) return
         if (playerHasOnlyHearts(cardPlayed.player)) return
@@ -83,7 +90,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun heartsHaveBeenBroken() = cardsPlayed().none { it.suit == HEARTS }
 
     private fun playerHasOnlyHearts(player: Player) =
-        cardsOfPlayer(player).all { it.suit == HEARTS }
+        currentCardsOfPlayer(player).all { it.suit == HEARTS }
 
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
         if (cardsPlayed().contains(card))
