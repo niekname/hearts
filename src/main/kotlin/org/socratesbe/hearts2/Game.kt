@@ -26,7 +26,12 @@ class Game private constructor(events: List<Event> = emptyList()) {
         _events += CardsDealt(cards[0], cards[1], cards[2], cards[3])
     }
 
-    fun passCards() {
+    fun passCards(
+        player1pass: PlayerWithCards,
+        player2pass: PlayerWithCards,
+        player3pass: PlayerWithCards,
+        player4pass: PlayerWithCards
+    ) {
         _events += CardsPassed
     }
 

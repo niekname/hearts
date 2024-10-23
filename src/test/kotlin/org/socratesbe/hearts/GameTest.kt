@@ -363,7 +363,6 @@ class GameTest {
 
     @Disabled
     @Test
-    // HERE
     fun `player cannot play a card before passing has finished`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(AlwaysPassLeft)
@@ -381,6 +380,7 @@ class GameTest {
 
     @Disabled
     @Test
+    // HERE
     fun `player cannot pass cards they don't have`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(AlwaysPassLeft)

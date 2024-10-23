@@ -310,6 +310,26 @@ class GameTest {
             .hasMessage("Cannot play cards before passing has finished")
     }
 
+    // TODO parameterize
+    @Test
+    fun `player cannot pass cards they don't have`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            defaultCards
+        )
+
+        val player1pass = PlayerWithCards(Player("Mary"), setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS))
+        val player2pass = PlayerWithCards(Player("Joe"), setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
+        val player3pass = PlayerWithCards(Player("Bob"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS))
+        val player4pass = PlayerWithCards(Player("Jane"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS))
+        val throwable = catchThrowable { game.passCards(player1pass, player2pass, player3pass, player4pass) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Mary does not have ${QUEEN of CLUBS}")
+    }
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {
