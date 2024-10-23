@@ -281,6 +281,21 @@ class GameTest {
         assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Joe"), SIX of HEARTS))
     }
 
+    @Test
+    fun `cannot play a card before passing has finished`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            defaultCards
+        )
+
+        val throwable = catchThrowable { game.playCard(Player("Bob"), TWO of CLUBS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Cannot play cards before passing has finished")
+    }
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {
