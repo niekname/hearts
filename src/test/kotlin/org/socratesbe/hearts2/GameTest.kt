@@ -258,6 +258,29 @@ class GameTest {
         assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Mary"), TEN of HEARTS))
     }
 
+    @Test
+    fun `player can open with hearts when hearts have been played`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            maryForcedToPlayHeartsOnSecondRound,
+            CardPlayed(Player("Bob"), TWO of CLUBS),
+            CardPlayed(Player("Jane"), ACE of CLUBS),
+            CardPlayed(Player("Mary"), TEN of CLUBS),
+            CardPlayed(Player("Joe"), FOUR of CLUBS),
+
+            CardPlayed(Player("Jane"), THREE of CLUBS),
+            CardPlayed(Player("Mary"), TEN of HEARTS),
+            CardPlayed(Player("Joe"), NINE of CLUBS),
+            CardPlayed(Player("Bob"), FIVE of CLUBS)
+        )
+
+        game.playCard(Player("Joe"), SIX of HEARTS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(CardPlayed(Player("Joe"), SIX of HEARTS))
+    }
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {

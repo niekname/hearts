@@ -311,7 +311,6 @@ class GameTest {
 
     @Disabled
     @Test
-    // HERE
     fun `player can open with hearts when hearts haven't been played and player has no other options`() {
         onDeal(::maryForcedToPlayHeartsOnSecondRound)
         setPassingRuleTo(NoPassing)
@@ -335,6 +334,7 @@ class GameTest {
 
     @Disabled
     @Test
+    // HERE
     fun `player can open with hearts when hearts have been played`() {
         onDeal(::maryForcedToPlayHeartsOnSecondRound)
         setPassingRuleTo(NoPassing)
