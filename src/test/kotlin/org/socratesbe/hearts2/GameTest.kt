@@ -219,7 +219,26 @@ class GameTest {
             .hasMessage("${TEN of CLUBS} has already been played")
     }
 
-    // TODO test case for if a player gets dealt only hearts > https://boardgames.stackexchange.com/questions/38220/in-hearts-impossible-to-play-first-hand
+    @Test
+    fun `player cannot play hearts when hearts have not been broken`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            defaultCards,
+            CardPlayed(Player("Bob"), TWO of CLUBS)
+        )
+
+        game.playCard(Player("Jane"), THREE of CLUBS)
+        game.playCard(Player("Mary"), TEN of CLUBS)
+        game.playCard(Player("Joe"), NINE of CLUBS)
+
+        val throwable = catchThrowable { game.playCard(Player("Mary"), SIX of HEARTS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("$HEARTS have not been broken")
+    }
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {

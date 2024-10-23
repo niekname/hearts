@@ -269,7 +269,6 @@ class GameTest {
 
     @Disabled
     @Test
-    // HERE
     fun `player can play hearts in first round when player has no other options`() {
         onDeal(::maryHasOnlyHearts)
         setPassingRuleTo(NoPassing)
@@ -289,6 +288,7 @@ class GameTest {
 
     @Disabled
     @Test
+    // HERE
     fun `player cannot open with hearts when hearts haven't been played and player has other options`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(NoPassing)
