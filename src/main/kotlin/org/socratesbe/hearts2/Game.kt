@@ -12,7 +12,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     }
 
     private val _events = events.toMutableList()
-    val events: List<Event> = _events
+    val events get() = _events.toList()
 
     private fun start(players: Players) {
         _events += GameStarted(players)
