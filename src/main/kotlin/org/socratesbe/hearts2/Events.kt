@@ -44,4 +44,9 @@ data class CardsDealt(
 
 data class CardPlayed(val player: Player, val card: Card) : Event
 
-object CardsPassed : Event
+data class CardsPassed(
+    val player1: PlayerWithCards,
+    val player2: PlayerWithCards,
+    val player3: PlayerWithCards,
+    val player4: PlayerWithCards
+) : Event
