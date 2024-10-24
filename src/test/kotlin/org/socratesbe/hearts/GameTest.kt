@@ -380,7 +380,6 @@ class GameTest {
 
     @Disabled
     @Test
-    // HERE
     fun `player cannot pass cards they don't have`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(AlwaysPassLeft)
@@ -432,6 +431,7 @@ class GameTest {
 
     @Disabled
     @Test
+    // HERE
     fun `player cannot pass twice during same deal`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(AlwaysPassLeft)

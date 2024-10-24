@@ -312,7 +312,7 @@ class GameTest {
 
     // TODO parameterize
     @Test
-    fun `player cannot pass cards they don't have`() {
+    fun `players cannot pass cards they don't have`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
@@ -328,6 +328,26 @@ class GameTest {
         assertThat(throwable)
             .isInstanceOf(RuntimeException::class.java)
             .hasMessage("Mary does not have ${QUEEN of CLUBS}")
+    }
+
+    @Test
+    fun `should pass cards`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            defaultCards
+        )
+
+        val player1pass = PlayerWithCards(Player("Mary"), setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
+        val player2pass = PlayerWithCards(Player("Joe"), setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS))
+        val player3pass = PlayerWithCards(Player("Bob"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS))
+        val player4pass = PlayerWithCards(Player("Jane"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS))
+        game.passCards(player1pass, player2pass, player3pass, player4pass)
+
+        assertThat(game.cardsInHandOf(Player("Mary"))).isEqualTo(defaultCards.player1WithCards.cards - player1pass.cards + player4pass.cards)
+        assertThat(game.cardsInHandOf(Player("Joe"))).isEqualTo(defaultCards.player2WithCards.cards - player2pass.cards + player3pass.cards)
+        assertThat(game.cardsInHandOf(Player("Bob"))).isEqualTo(defaultCards.player3WithCards.cards - player3pass.cards + player4pass.cards)
+        assertThat(game.cardsInHandOf(Player("Jane"))).isEqualTo(defaultCards.player4WithCards.cards - player4pass.cards + player1pass.cards)
     }
 
     // rules: https://cardgames.io/hearts/#rules

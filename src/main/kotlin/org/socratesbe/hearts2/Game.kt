@@ -160,4 +160,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .filter { it.player == player }
             .map { it.card }
             .toSet()
+
+    fun cardsInHandOf(player: Player) =
+        remainingCardsInHandOf(player)
 }
