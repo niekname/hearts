@@ -360,6 +360,29 @@ class GameTest {
 
     // TODO players should pass exactly 3 cards
 
+    @Test
+    fun `cannot pass twice during same deal`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            defaultCards,
+            defaultCardsPassed
+        )
+
+        val throwable = catchThrowable {
+            game.passCards(
+                PlayerWithCards(Player("Mary"), setOf(TEN of HEARTS, JACK of DIAMONDS, TEN of CLUBS)),
+                PlayerWithCards(Player("Joe"), setOf(SEVEN of HEARTS, NINE of CLUBS, QUEEN of HEARTS)),
+                PlayerWithCards(Player("Bob"), setOf(QUEEN of DIAMONDS, SIX of SPADES, FOUR of DIAMONDS)),
+                PlayerWithCards(Player("Jane"), setOf(KING of DIAMONDS, KING of SPADES, THREE of HEARTS))
+            )
+        }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Cards have already been passed")
+    }
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {
