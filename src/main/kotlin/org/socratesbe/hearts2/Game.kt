@@ -32,6 +32,9 @@ class Game private constructor(events: List<Event> = emptyList()) {
         player3pass: PlayerWithCards,
         player4pass: PlayerWithCards
     ) {
+        if (passingHasHappened())
+            throw RuntimeException("Cards have already been passed")
+
         player1pass.cards.forEach {
             validatePlayerHasCard(player1pass.player, it)
         }
