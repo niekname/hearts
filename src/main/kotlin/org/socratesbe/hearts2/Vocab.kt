@@ -13,14 +13,25 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
             else -> error("impossible")
         }
 
-    fun playerAtLeftSideOf(lastPlayer: Player) =
-        when (lastPlayer) {
+    fun playerAtLeftSideOf(player: Player) =
+        when (player) {
             player1 -> player2
             player2 -> player3
             player3 -> player4
             player4 -> player1
             else -> error("impossible")
         }
+
+    fun playerAtRightSideOf(player: Player) =
+        when (player) {
+            player1 -> player4
+            player2 -> player1
+            player3 -> player2
+            player4 -> player3
+            else -> error("impossible")
+        }
+
+    fun asList() = listOf(player1, player2, player3, player4)
 }
 
 data class Player(val name: PlayerName)

@@ -49,4 +49,12 @@ data class CardsPassed(
     val player2: PlayerWithCards,
     val player3: PlayerWithCards,
     val player4: PlayerWithCards
-) : Event
+) : Event {
+    fun byPlayer(player: Player) =
+        when {
+            player1.player == player -> player1
+            player2.player == player -> player2
+            player3.player == player -> player3
+            else -> player4
+        }
+}

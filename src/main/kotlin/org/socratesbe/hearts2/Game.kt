@@ -54,6 +54,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun checkRules(cardPlayed: CardPlayed) {
         validatePassingHasHappened()
+        validateCardHasNotYetBeenPlayed(cardPlayed.card) // TODO validatePlayerHasCard also checks this, so merge?
         validatePlayerHasCard(cardPlayed.player, cardPlayed.card)
         validatePlayersTurn(cardPlayed.player)
 
@@ -62,7 +63,6 @@ class Game private constructor(events: List<Event> = emptyList()) {
         else {
             validateLeadingSuitIsBeingFollowed(cardPlayed.player, cardPlayed.card)
             validateHeartsCanBePlayed(cardPlayed)
-            validateCardHasNotYetBeenPlayed(cardPlayed.card)
         }
     }
 
@@ -110,7 +110,10 @@ class Game private constructor(events: List<Event> = emptyList()) {
         remainingCardsInHandOf(player).none { it.suit == suit }
 
     private fun remainingCardsInHandOf(player: Player) =
-        cardsDealt().cardsForPlayer(player) - cardsPlayedBy(player)
+        cardsDealt().cardsForPlayer(player) -
+                cardsPassedBy(player) +
+                cardsPassedTo(player) -
+                cardsPlayedBy(player)
 
     private fun heartsHaveBeenBroken() = cardsPlayed().none { it.suit == HEARTS }
 
@@ -118,7 +121,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         remainingCardsInHandOf(player).all { it.suit == HEARTS }
 
     private fun whoIsAtTurn() = when {
-        handHasNotStarted() -> cardsDealt().whoHasCard(OPENING_CARD)
+        handHasNotStarted() -> whoHasCard(OPENING_CARD)
         trickIsOngoing() -> players().playerAtLeftSideOf(lastPlayer())
         else -> playerThatWonLastTrick()
     }
@@ -135,6 +138,12 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun cardsDealt() =
         _events.filterIsInstance<CardsDealt>().first()
 
+    private fun whoHasCard(card: Card) =
+        currentCardsOfPlayers().first { it.cards.contains(card) }.player
+
+    private fun currentCardsOfPlayers() =
+        players().asList().map { PlayerWithCards(it, remainingCardsInHandOf(it)) }
+
     private fun handHasNotStarted() =
         _events.filterIsInstance<CardPlayed>().isEmpty()
 
@@ -142,7 +151,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         _events.filterIsInstance<CardsPassed>().isNotEmpty()
 
     private fun playerHasCard(player: Player, card: Card) =
-        cardsDealt().whoHasCard(card) == player
+        whoHasCard(card) == player
 
     private fun lastPlayer() =
         _events.filterIsInstance<CardPlayed>().last().player
@@ -161,6 +170,12 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .map { it.card }
             .toSet()
 
-    fun cardsInHandOf(player: Player) =
-        remainingCardsInHandOf(player)
+    private fun cardsPassedBy(player: Player) =
+        when {
+            passingHasHappened() -> _events.filterIsInstance<CardsPassed>().first().byPlayer(player).cards
+            else -> emptySet()
+        }
+
+    private fun cardsPassedTo(player: Player) =
+        cardsPassedBy(players().playerAtRightSideOf(player))
 }
