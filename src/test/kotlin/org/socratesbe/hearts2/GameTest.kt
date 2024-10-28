@@ -383,6 +383,86 @@ class GameTest {
             .hasMessage("Cards have already been passed")
     }
 
+    @Test
+    fun `cards are dealt a second time when all cards from first deal have been played`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            defaultCards,
+            defaultCardsPassed
+        )
+
+        game.playCard(Player("Bob"), TWO of CLUBS)
+        game.playCard(Player("Jane"), THREE of CLUBS)
+        game.playCard(Player("Mary"), TEN of CLUBS)
+        game.playCard(Player("Joe"), QUEEN of CLUBS)
+
+        game.playCard(Player("Joe"), NINE of CLUBS)
+        game.playCard(Player("Bob"), FIVE of CLUBS)
+        game.playCard(Player("Jane"), EIGHT of CLUBS)
+        game.playCard(Player("Mary"), ACE of CLUBS)
+
+        game.playCard(Player("Mary"), EIGHT of SPADES)
+        game.playCard(Player("Joe"), SEVEN of SPADES)
+        game.playCard(Player("Bob"), SIX of SPADES)
+        game.playCard(Player("Jane"), KING of SPADES)
+
+        game.playCard(Player("Jane"), TEN of DIAMONDS)
+        game.playCard(Player("Mary"), THREE of DIAMONDS)
+        game.playCard(Player("Joe"), EIGHT of DIAMONDS)
+        game.playCard(Player("Bob"), SIX of DIAMONDS)
+
+        game.playCard(Player("Jane"), NINE of DIAMONDS)
+        game.playCard(Player("Mary"), JACK of DIAMONDS)
+        game.playCard(Player("Joe"), FOUR of CLUBS)
+        game.playCard(Player("Bob"), QUEEN of DIAMONDS)
+
+        game.playCard(Player("Bob"), FOUR of DIAMONDS)
+        game.playCard(Player("Jane"), KING of DIAMONDS)
+        game.playCard(Player("Mary"), FIVE of DIAMONDS)
+        game.playCard(Player("Joe"), QUEEN of SPADES)
+
+        game.playCard(Player("Jane"), JACK of SPADES)
+        game.playCard(Player("Mary"), TEN of SPADES)
+        game.playCard(Player("Joe"), TWO of SPADES)
+        game.playCard(Player("Bob"), FOUR of SPADES)
+
+        game.playCard(Player("Jane"), THREE of SPADES)
+        game.playCard(Player("Mary"), NINE of SPADES)
+        game.playCard(Player("Joe"), FIVE of SPADES)
+        game.playCard(Player("Bob"), ACE of SPADES)
+
+        game.playCard(Player("Bob"), SEVEN of CLUBS)
+        game.playCard(Player("Jane"), KING of CLUBS)
+        game.playCard(Player("Mary"), ACE of DIAMONDS)
+        game.playCard(Player("Joe"), TWO of HEARTS)
+
+        game.playCard(Player("Jane"), THREE of HEARTS)
+        game.playCard(Player("Mary"), SIX of HEARTS)
+        game.playCard(Player("Joe"), EIGHT of HEARTS)
+        game.playCard(Player("Bob"), FOUR of HEARTS)
+
+        game.playCard(Player("Joe"), SEVEN of HEARTS)
+        game.playCard(Player("Bob"), NINE of HEARTS)
+        game.playCard(Player("Jane"), KING of HEARTS)
+        game.playCard(Player("Mary"), TEN of HEARTS)
+
+        game.playCard(Player("Jane"), SIX of CLUBS)
+        game.playCard(Player("Mary"), SEVEN of DIAMONDS)
+        game.playCard(Player("Joe"), QUEEN of HEARTS)
+        game.playCard(Player("Bob"), JACK of CLUBS)
+
+        game.playCard(Player("Bob"), TWO of DIAMONDS)
+        game.playCard(Player("Jane"), JACK of HEARTS)
+        game.playCard(Player("Mary"), ACE of HEARTS)
+        game.playCard(Player("Joe"), FIVE of HEARTS)
+
+        val cardsDealt = game.events.filterIsInstance<CardsDealt>()
+        assertThat(cardsDealt)
+            .hasSize(2)
+            .last().isEqualTo(defaultCards)
+    }
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {

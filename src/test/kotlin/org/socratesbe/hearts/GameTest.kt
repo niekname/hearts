@@ -431,7 +431,6 @@ class GameTest {
 
     @Disabled
     @Test
-    // HERE
     fun `player cannot pass twice during same deal`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(AlwaysPassLeft)
@@ -486,6 +485,7 @@ class GameTest {
 
     @Disabled
     @Test
+    // HERE
     fun `cards are dealt a second time when all cards from first deal have been played`() {
         onDeal(::dealFixedCards)
         setPassingRuleTo(NoPassing)
