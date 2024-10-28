@@ -50,10 +50,14 @@ class Game private constructor(events: List<Event> = emptyList()) {
         _events += CardsPassed(player1pass, player2pass, player3pass, player4pass)
     }
 
-    fun playCard(player: Player, card: Card) =
+    fun playCard(player: Player, card: Card) {
         CardPlayed(player, card)
             .also { checkRules(it) }
             .let { _events += it }
+        if (cardsPlayed().size == Deck().cards.size) {
+            dealCards()
+        }
+    }
 
     private fun checkRules(cardPlayed: CardPlayed) {
         validatePassingHasHappened()

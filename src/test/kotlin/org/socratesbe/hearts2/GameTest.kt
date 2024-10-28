@@ -458,9 +458,15 @@ class GameTest {
         game.playCard(Player("Joe"), FIVE of HEARTS)
 
         val cardsDealt = game.events.filterIsInstance<CardsDealt>()
-        assertThat(cardsDealt)
-            .hasSize(2)
-            .last().isEqualTo(defaultCards)
+        assertThat(cardsDealt).hasSize(2)
+
+        assertThat(cardsDealt.last().players).isEqualTo(players)
+        assertThat(cardsDealt.last().allCards).containsAll(Deck().cards)
+
+        assertThat(cardsDealt.last().player1WithCards.cards).hasSize(13)
+        assertThat(cardsDealt.last().player2WithCards.cards).hasSize(13)
+        assertThat(cardsDealt.last().player3WithCards.cards).hasSize(13)
+        assertThat(cardsDealt.last().player4WithCards.cards).hasSize(13)
     }
 
     // rules: https://cardgames.io/hearts/#rules
