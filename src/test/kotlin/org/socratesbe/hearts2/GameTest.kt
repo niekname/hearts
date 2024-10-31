@@ -45,7 +45,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed
         )
 
@@ -60,7 +60,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed
         )
 
@@ -76,7 +76,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -93,7 +93,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -110,7 +110,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -126,7 +126,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -144,7 +144,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            janeHasNoClubs,
+            janeHasNoClubsCardsDealt,
             janeHasNoClubsCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -160,7 +160,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            janeHasNoClubs,
+            janeHasNoClubsCardsDealt,
             janeHasNoClubsCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -177,7 +177,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            maryHasOnlyHearts,
+            maryHasOnlyHeartsCardsDealt,
             maryHasOnlyHeartsCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS),
             CardPlayed(Player("Jane"), THREE of CLUBS)
@@ -194,7 +194,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -214,7 +214,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -235,7 +235,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -256,7 +256,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            maryForcedToPlayHeartsOnSecondRound,
+            maryForcedToPlayHeartsOnSecondRoundCardsDealt,
             maryForcedToPlayHeartsOnSecondRoundCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS)
         )
@@ -276,7 +276,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            maryForcedToPlayHeartsOnSecondRound,
+            maryForcedToPlayHeartsOnSecondRoundCardsDealt,
             maryForcedToPlayHeartsOnSecondRoundCardsPassed,
             CardPlayed(Player("Bob"), TWO of CLUBS),
             CardPlayed(Player("Jane"), ACE of CLUBS),
@@ -300,7 +300,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards
+            defaultCardsDealt
         )
 
         val throwable = catchThrowable { game.playCard(Player("Bob"), TWO of CLUBS) }
@@ -316,7 +316,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards
+            defaultCardsDealt
         )
 
         val throwable = catchThrowable {
@@ -334,11 +334,11 @@ class GameTest {
     }
 
     @Test
-    fun `should pass cards`() {
+    fun `should pass cards to the left on first deal`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards
+            defaultCardsDealt
         )
 
         game.passCards(
@@ -361,11 +361,11 @@ class GameTest {
     // TODO players should pass exactly 3 cards
 
     @Test
-    fun `cannot pass twice during same deal`() {
+    fun `cannot pass twice during same hand`() {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed
         )
 
@@ -388,7 +388,7 @@ class GameTest {
         val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
         val game = Game.fromEvents(
             GameStarted(players),
-            defaultCards,
+            defaultCardsDealt,
             defaultCardsPassed
         )
 
@@ -469,6 +469,108 @@ class GameTest {
         assertThat(cardsDealt.last().player4WithCards.cards).hasSize(13)
     }
 
+    @Test
+    fun `should pass cards to the right on second hand`() {
+        val players = Players(Player("Mary"), Player("Joe"), Player("Bob"), Player("Jane"))
+        val game = Game.fromEvents(
+            GameStarted(players),
+            defaultCardsDealt,
+            defaultCardsPassed,
+            *firstHandWithDefaultCards().toTypedArray(),
+            defaultCardsDealt
+        )
+
+        game.passCards(
+            defaultCardsPassed.player1,
+            defaultCardsPassed.player2,
+            defaultCardsPassed.player3,
+            defaultCardsPassed.player4
+        )
+
+        assertThat(game.events.filterIsInstance<CardsPassed>()).containsExactly(
+            CardsPassed(
+                defaultCardsPassed.player1,
+                defaultCardsPassed.player2,
+                defaultCardsPassed.player3,
+                defaultCardsPassed.player4,
+            ),
+            CardsPassed(
+                defaultCardsPassed.player1,
+                defaultCardsPassed.player2,
+                defaultCardsPassed.player3,
+                defaultCardsPassed.player4,
+            )
+        )
+    }
+
+    private fun firstHandWithDefaultCards() = listOf(
+        CardPlayed(Player("Bob"), TWO of CLUBS),
+        CardPlayed(Player("Jane"), THREE of CLUBS),
+        CardPlayed(Player("Mary"), TEN of CLUBS),
+        CardPlayed(Player("Joe"), QUEEN of CLUBS),
+
+        CardPlayed(Player("Joe"), NINE of CLUBS),
+        CardPlayed(Player("Bob"), FIVE of CLUBS),
+        CardPlayed(Player("Jane"), EIGHT of CLUBS),
+        CardPlayed(Player("Mary"), ACE of CLUBS),
+
+        CardPlayed(Player("Mary"), EIGHT of SPADES),
+        CardPlayed(Player("Joe"), SEVEN of SPADES),
+        CardPlayed(Player("Bob"), SIX of SPADES),
+        CardPlayed(Player("Jane"), KING of SPADES),
+
+        CardPlayed(Player("Jane"), TEN of DIAMONDS),
+        CardPlayed(Player("Mary"), THREE of DIAMONDS),
+        CardPlayed(Player("Joe"), EIGHT of DIAMONDS),
+        CardPlayed(Player("Bob"), SIX of DIAMONDS),
+
+        CardPlayed(Player("Jane"), NINE of DIAMONDS),
+        CardPlayed(Player("Mary"), JACK of DIAMONDS),
+        CardPlayed(Player("Joe"), FOUR of CLUBS),
+        CardPlayed(Player("Bob"), QUEEN of DIAMONDS),
+
+        CardPlayed(Player("Bob"), FOUR of DIAMONDS),
+        CardPlayed(Player("Jane"), KING of DIAMONDS),
+        CardPlayed(Player("Mary"), FIVE of DIAMONDS),
+        CardPlayed(Player("Joe"), QUEEN of SPADES),
+
+        CardPlayed(Player("Jane"), JACK of SPADES),
+        CardPlayed(Player("Mary"), TEN of SPADES),
+        CardPlayed(Player("Joe"), TWO of SPADES),
+        CardPlayed(Player("Bob"), FOUR of SPADES),
+
+        CardPlayed(Player("Jane"), THREE of SPADES),
+        CardPlayed(Player("Mary"), NINE of SPADES),
+        CardPlayed(Player("Joe"), FIVE of SPADES),
+        CardPlayed(Player("Bob"), ACE of SPADES),
+
+        CardPlayed(Player("Bob"), SEVEN of CLUBS),
+        CardPlayed(Player("Jane"), KING of CLUBS),
+        CardPlayed(Player("Mary"), ACE of DIAMONDS),
+        CardPlayed(Player("Joe"), TWO of HEARTS),
+
+        CardPlayed(Player("Jane"), THREE of HEARTS),
+        CardPlayed(Player("Mary"), SIX of HEARTS),
+        CardPlayed(Player("Joe"), EIGHT of HEARTS),
+        CardPlayed(Player("Bob"), FOUR of HEARTS),
+
+        CardPlayed(Player("Joe"), SEVEN of HEARTS),
+        CardPlayed(Player("Bob"), NINE of HEARTS),
+        CardPlayed(Player("Jane"), KING of HEARTS),
+        CardPlayed(Player("Mary"), TEN of HEARTS),
+
+        CardPlayed(Player("Jane"), SIX of CLUBS),
+        CardPlayed(Player("Mary"), SEVEN of DIAMONDS),
+        CardPlayed(Player("Joe"), QUEEN of HEARTS),
+        CardPlayed(Player("Bob"), JACK of CLUBS),
+
+        CardPlayed(Player("Bob"), TWO of DIAMONDS),
+        CardPlayed(Player("Jane"), JACK of HEARTS),
+        CardPlayed(Player("Mary"), ACE of HEARTS),
+        CardPlayed(Player("Joe"), FIVE of HEARTS)
+    )
+
+
     // rules: https://cardgames.io/hearts/#rules
 
     companion object {
@@ -479,7 +581,7 @@ class GameTest {
             PlayerWithCards(Player("Jane"), setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
         )
 
-        private val defaultCards = CardsDealt(
+        private val defaultCardsDealt = CardsDealt(
             player1WithCards = PlayerWithCards(
                 Player("Mary"), setOf(
                     QUEEN of CLUBS,
@@ -554,7 +656,7 @@ class GameTest {
             PlayerWithCards(Player("Jane"), setOf(THREE of CLUBS, THREE of DIAMONDS, SIX of HEARTS))
         )
 
-        private val janeHasNoClubs = CardsDealt(
+        private val janeHasNoClubsCardsDealt = CardsDealt(
             player1WithCards = PlayerWithCards(
                 Player("Mary"), setOf(
                     QUEEN of CLUBS,
@@ -632,7 +734,7 @@ class GameTest {
             PlayerWithCards(Player("Jane"), setOf(SIX of HEARTS, TEN of HEARTS, ACE of HEARTS))
         )
 
-        private val maryHasOnlyHearts = CardsDealt(
+        private val maryHasOnlyHeartsCardsDealt = CardsDealt(
             player1WithCards = PlayerWithCards(
                 Player("Mary"), setOf(
                     QUEEN of CLUBS,
@@ -710,7 +812,7 @@ class GameTest {
             PlayerWithCards(Player("Jane"), setOf(TEN of HEARTS, ACE of HEARTS, TWO of HEARTS))
         )
 
-        private val maryForcedToPlayHeartsOnSecondRound = CardsDealt(
+        private val maryForcedToPlayHeartsOnSecondRoundCardsDealt = CardsDealt(
             player1WithCards = PlayerWithCards(
                 Player("Mary"), setOf(
                     QUEEN of CLUBS,
