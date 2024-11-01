@@ -47,7 +47,37 @@ class Game private constructor(events: List<Event> = emptyList()) {
         player4pass.cards.forEach {
             validatePlayerHasCard(player4pass.player, it)
         }
-        _events += CardsPassed(player1pass, player2pass, player3pass, player4pass)
+
+        val player1 = CardsPassed.PlayerPassing(
+            player1pass.player,
+            players().playerAtLeftSideOf(player1pass.player),
+            player1pass.cards.elementAt(0),
+            player1pass.cards.elementAt(1),
+            player1pass.cards.elementAt(2)
+        )
+        val player2 = CardsPassed.PlayerPassing(
+            player2pass.player,
+            players().playerAtLeftSideOf(player2pass.player),
+            player2pass.cards.elementAt(0),
+            player2pass.cards.elementAt(1),
+            player2pass.cards.elementAt(2)
+        )
+        val player3 = CardsPassed.PlayerPassing(
+            player3pass.player,
+            players().playerAtLeftSideOf(player3pass.player),
+            player3pass.cards.elementAt(0),
+            player3pass.cards.elementAt(1),
+            player3pass.cards.elementAt(2)
+        )
+        val player4 = CardsPassed.PlayerPassing(
+            player4pass.player,
+            players().playerAtLeftSideOf(player4pass.player),
+            player4pass.cards.elementAt(0),
+            player4pass.cards.elementAt(1),
+            player4pass.cards.elementAt(2)
+        )
+
+        _events += CardsPassed(listOf(player1, player2, player3, player4))
     }
 
     fun playCard(player: Player, card: Card) {
@@ -180,7 +210,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun cardsPassedBy(player: Player) =
         when {
-            passingHasHappened() -> _events.filterIsInstance<CardsPassed>().first().byPlayer(player).cards
+            passingHasHappened() -> _events.filterIsInstance<CardsPassed>().first().byPlayer(player).cards()
             else -> emptySet()
         }
 

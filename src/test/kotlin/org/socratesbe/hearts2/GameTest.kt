@@ -322,9 +322,9 @@ class GameTest {
         val throwable = catchThrowable {
             game.passCards(
                 PlayerWithCards(Player("Mary"), setOf(QUEEN of HEARTS, TWO of HEARTS, EIGHT of HEARTS)),
-                defaultCardsPassed.player2,
-                defaultCardsPassed.player3,
-                defaultCardsPassed.player4
+                PlayerWithCards(Player("Joe"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+                PlayerWithCards(Player("Bob"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+                PlayerWithCards(Player("Jane"), setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
             )
         }
 
@@ -342,18 +342,44 @@ class GameTest {
         )
 
         game.passCards(
-            defaultCardsPassed.player1,
-            defaultCardsPassed.player2,
-            defaultCardsPassed.player3,
-            defaultCardsPassed.player4
+            PlayerWithCards(Player("Mary"), setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS)),
+            PlayerWithCards(Player("Joe"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+            PlayerWithCards(Player("Bob"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+            PlayerWithCards(Player("Jane"), setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
         )
 
         assertThat(game.events.filterIsInstance<CardsPassed>().first()).isEqualTo(
             CardsPassed(
-                defaultCardsPassed.player1,
-                defaultCardsPassed.player2,
-                defaultCardsPassed.player3,
-                defaultCardsPassed.player4,
+                listOf(
+                    CardsPassed.PlayerPassing(
+                        Player("Mary"),
+                        Player("Joe"),
+                        QUEEN of CLUBS,
+                        TWO of HEARTS,
+                        EIGHT of HEARTS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Joe"),
+                        Player("Bob"),
+                        SIX of DIAMONDS,
+                        TWO of CLUBS,
+                        FIVE of CLUBS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Bob"),
+                        Player("Jane"),
+                        THREE of CLUBS,
+                        TEN of DIAMONDS,
+                        NINE of DIAMONDS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Jane"),
+                        Player("Mary"),
+                        EIGHT of SPADES,
+                        THREE of DIAMONDS,
+                        SIX of HEARTS
+                    ),
+                )
             )
         )
     }
@@ -481,24 +507,76 @@ class GameTest {
         )
 
         game.passCards(
-            defaultCardsPassed.player1,
-            defaultCardsPassed.player2,
-            defaultCardsPassed.player3,
-            defaultCardsPassed.player4
+            PlayerWithCards(Player("Mary"), setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS)),
+            PlayerWithCards(Player("Joe"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+            PlayerWithCards(Player("Bob"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+            PlayerWithCards(Player("Jane"), setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
         )
 
         assertThat(game.events.filterIsInstance<CardsPassed>()).containsExactly(
             CardsPassed(
-                defaultCardsPassed.player1,
-                defaultCardsPassed.player2,
-                defaultCardsPassed.player3,
-                defaultCardsPassed.player4,
+                listOf(
+                    CardsPassed.PlayerPassing(
+                        Player("Mary"),
+                        Player("Joe"),
+                        QUEEN of CLUBS,
+                        TWO of HEARTS,
+                        EIGHT of HEARTS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Joe"),
+                        Player("Bob"),
+                        SIX of DIAMONDS,
+                        TWO of CLUBS,
+                        FIVE of CLUBS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Bob"),
+                        Player("Jane"),
+                        THREE of CLUBS,
+                        TEN of DIAMONDS,
+                        NINE of DIAMONDS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Jane"),
+                        Player("Mary"),
+                        EIGHT of SPADES,
+                        THREE of DIAMONDS,
+                        SIX of HEARTS
+                    ),
+                )
             ),
             CardsPassed(
-                defaultCardsPassed.player1,
-                defaultCardsPassed.player2,
-                defaultCardsPassed.player3,
-                defaultCardsPassed.player4,
+                listOf(
+                    CardsPassed.PlayerPassing(
+                        Player("Mary"),
+                        Player("Joe"),
+                        QUEEN of CLUBS,
+                        TWO of HEARTS,
+                        EIGHT of HEARTS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Joe"),
+                        Player("Bob"),
+                        SIX of DIAMONDS,
+                        TWO of CLUBS,
+                        FIVE of CLUBS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Bob"),
+                        Player("Jane"),
+                        THREE of CLUBS,
+                        TEN of DIAMONDS,
+                        NINE of DIAMONDS
+                    ),
+                    CardsPassed.PlayerPassing(
+                        Player("Jane"),
+                        Player("Mary"),
+                        EIGHT of SPADES,
+                        THREE of DIAMONDS,
+                        SIX of HEARTS
+                    ),
+                )
             )
         )
     }
@@ -575,10 +653,30 @@ class GameTest {
 
     companion object {
         val defaultCardsPassed = CardsPassed(
-            PlayerWithCards(Player("Mary"), setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS)),
-            PlayerWithCards(Player("Joe"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
-            PlayerWithCards(Player("Bob"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
-            PlayerWithCards(Player("Jane"), setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
+            listOf(
+                CardsPassed.PlayerPassing(
+                    Player("Mary"),
+                    Player("Joe"),
+                    QUEEN of CLUBS,
+                    TWO of HEARTS,
+                    EIGHT of HEARTS
+                ),
+                CardsPassed.PlayerPassing(Player("Joe"), Player("Bob"), SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+                CardsPassed.PlayerPassing(
+                    Player("Bob"),
+                    Player("Jane"),
+                    THREE of CLUBS,
+                    TEN of DIAMONDS,
+                    NINE of DIAMONDS
+                ),
+                CardsPassed.PlayerPassing(
+                    Player("Jane"),
+                    Player("Mary"),
+                    EIGHT of SPADES,
+                    THREE of DIAMONDS,
+                    SIX of HEARTS
+                ),
+            )
         )
 
         private val defaultCardsDealt = CardsDealt(
@@ -650,10 +748,30 @@ class GameTest {
         )
 
         val janeHasNoClubsCardsPassed = CardsPassed(
-            PlayerWithCards(Player("Mary"), setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS)),
-            PlayerWithCards(Player("Joe"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
-            PlayerWithCards(Player("Bob"), setOf(EIGHT of SPADES, TEN of DIAMONDS, NINE of DIAMONDS)),
-            PlayerWithCards(Player("Jane"), setOf(THREE of CLUBS, THREE of DIAMONDS, SIX of HEARTS))
+            listOf(
+                CardsPassed.PlayerPassing(
+                    Player("Mary"),
+                    Player("Joe"),
+                    QUEEN of CLUBS,
+                    TWO of HEARTS,
+                    EIGHT of HEARTS
+                ),
+                CardsPassed.PlayerPassing(Player("Joe"), Player("Bob"), SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+                CardsPassed.PlayerPassing(
+                    Player("Bob"),
+                    Player("Jane"),
+                    EIGHT of SPADES,
+                    TEN of DIAMONDS,
+                    NINE of DIAMONDS
+                ),
+                CardsPassed.PlayerPassing(
+                    Player("Jane"),
+                    Player("Mary"),
+                    THREE of CLUBS,
+                    THREE of DIAMONDS,
+                    SIX of HEARTS
+                ),
+            )
         )
 
         private val janeHasNoClubsCardsDealt = CardsDealt(
@@ -728,10 +846,18 @@ class GameTest {
         )
 
         val maryHasOnlyHeartsCardsPassed = CardsPassed(
-            PlayerWithCards(Player("Mary"), setOf(QUEEN of CLUBS, NINE of CLUBS, FOUR of CLUBS)),
-            PlayerWithCards(Player("Joe"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
-            PlayerWithCards(Player("Bob"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
-            PlayerWithCards(Player("Jane"), setOf(SIX of HEARTS, TEN of HEARTS, ACE of HEARTS))
+            listOf(
+                CardsPassed.PlayerPassing(Player("Mary"), Player("Joe"), QUEEN of CLUBS, NINE of CLUBS, FOUR of CLUBS),
+                CardsPassed.PlayerPassing(Player("Joe"), Player("Bob"), SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+                CardsPassed.PlayerPassing(
+                    Player("Bob"),
+                    Player("Jane"),
+                    THREE of CLUBS,
+                    TEN of DIAMONDS,
+                    NINE of DIAMONDS
+                ),
+                CardsPassed.PlayerPassing(Player("Jane"), Player("Mary"), SIX of HEARTS, TEN of HEARTS, ACE of HEARTS),
+            )
         )
 
         private val maryHasOnlyHeartsCardsDealt = CardsDealt(
@@ -806,10 +932,18 @@ class GameTest {
         )
 
         val maryForcedToPlayHeartsOnSecondRoundCardsPassed = CardsPassed(
-            PlayerWithCards(Player("Mary"), setOf(QUEEN of CLUBS, NINE of CLUBS, FOUR of CLUBS)),
-            PlayerWithCards(Player("Joe"), setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
-            PlayerWithCards(Player("Bob"), setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
-            PlayerWithCards(Player("Jane"), setOf(TEN of HEARTS, ACE of HEARTS, TWO of HEARTS))
+            listOf(
+                CardsPassed.PlayerPassing(Player("Mary"), Player("Joe"), QUEEN of CLUBS, NINE of CLUBS, FOUR of CLUBS),
+                CardsPassed.PlayerPassing(Player("Joe"), Player("Bob"), SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+                CardsPassed.PlayerPassing(
+                    Player("Bob"),
+                    Player("Jane"),
+                    THREE of CLUBS,
+                    TEN of DIAMONDS,
+                    NINE of DIAMONDS
+                ),
+                CardsPassed.PlayerPassing(Player("Jane"), Player("Mary"), TEN of HEARTS, ACE of HEARTS, TWO of HEARTS),
+            )
         )
 
         private val maryForcedToPlayHeartsOnSecondRoundCardsDealt = CardsDealt(

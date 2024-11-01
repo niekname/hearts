@@ -10,16 +10,6 @@ data class CardsDealt(
     val player3WithCards: PlayerWithCards,
     val player4WithCards: PlayerWithCards
 ) : Event {
-    fun whoHasCard(card: Card): Player {
-        return if (player1WithCards.hasCard(card))
-            player1WithCards.player
-        else if (player2WithCards.hasCard(card))
-            player2WithCards.player
-        else if (player3WithCards.hasCard(card))
-            player3WithCards.player
-        else player4WithCards.player
-    }
-
     fun cardsForPlayer(player: Player): Set<Card> {
         return if (player1WithCards.player == player)
             player1WithCards.cards
@@ -45,16 +35,18 @@ data class CardsDealt(
 data class CardPlayed(val player: Player, val card: Card) : Event
 
 data class CardsPassed(
-    val player1: PlayerWithCards,
-    val player2: PlayerWithCards,
-    val player3: PlayerWithCards,
-    val player4: PlayerWithCards
+    val playerPassing: List<PlayerPassing>,
 ) : Event {
     fun byPlayer(player: Player) =
-        when {
-            player1.player == player -> player1
-            player2.player == player -> player2
-            player3.player == player -> player3
-            else -> player4
-        }
+        playerPassing.first { it.from == player }
+
+    data class PlayerPassing(
+        val from: Player,
+        val to: Player,
+        val card1: Card,
+        val card2: Card,
+        val card3: Card,
+    ) {
+        fun cards() = setOf(card1, card2, card3)
+    }
 }
