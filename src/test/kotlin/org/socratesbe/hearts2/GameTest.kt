@@ -144,7 +144,7 @@ class GameTest {
         game.playCard(BOB, TWO of CLUBS)
 
         val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(CardPlayed(BOB, TWO of CLUBS))
+        assertThat(cardPlayed).isEqualTo(BOB played (TWO of CLUBS))
     }
 
     // TODO parameterize
@@ -154,7 +154,7 @@ class GameTest {
             GameStarted(players),
             DefaultGame.cardsDealt,
             DefaultGame.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS)
+            BOB played (TWO of CLUBS)
         )
 
         val throwable = catchThrowable { game.playCard(JANE, ACE of SPADES) }
@@ -171,7 +171,7 @@ class GameTest {
             GameStarted(players),
             DefaultGame.cardsDealt,
             DefaultGame.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS)
+            BOB played (TWO of CLUBS)
         )
 
         val throwable = catchThrowable { game.playCard(MARY, TEN of CLUBS) }
@@ -187,13 +187,13 @@ class GameTest {
             GameStarted(players),
             DefaultGame.cardsDealt,
             DefaultGame.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS)
+            BOB played (TWO of CLUBS)
         )
 
         game.playCard(JANE, THREE of CLUBS)
 
         val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(CardPlayed(JANE, THREE of CLUBS))
+        assertThat(cardPlayed).isEqualTo(JANE played (THREE of CLUBS))
     }
 
     @Test
@@ -202,7 +202,7 @@ class GameTest {
             GameStarted(players),
             DefaultGame.cardsDealt,
             DefaultGame.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS)
+            BOB played (TWO of CLUBS)
         )
 
         val throwable = catchThrowable { game.playCard(JANE, TEN of DIAMONDS) }
@@ -219,13 +219,13 @@ class GameTest {
             GameStarted(players),
             JaneHasNoClubs.cardsDealt,
             JaneHasNoClubs.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS)
+            BOB played (TWO of CLUBS)
         )
 
         game.playCard(JANE, QUEEN of SPADES)
 
         val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(CardPlayed(JANE, QUEEN of SPADES))
+        assertThat(cardPlayed).isEqualTo(JANE played (QUEEN of SPADES))
     }
 
     @Test
@@ -234,7 +234,7 @@ class GameTest {
             GameStarted(players),
             JaneHasNoClubs.cardsDealt,
             JaneHasNoClubs.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS)
+            BOB played (TWO of CLUBS)
         )
 
         val throwable = catchThrowable { game.playCard(JANE, THREE of HEARTS) }
@@ -250,14 +250,14 @@ class GameTest {
             GameStarted(players),
             MaryHasOnlyHearts.cardsDealt,
             MaryHasOnlyHearts.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS),
-            CardPlayed(JANE, THREE of CLUBS)
+            BOB played (TWO of CLUBS),
+            JANE played (THREE of CLUBS)
         )
 
         game.playCard(MARY, TEN of HEARTS)
 
         val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(CardPlayed(MARY, TEN of HEARTS))
+        assertThat(cardPlayed).isEqualTo(MARY played (TEN of HEARTS))
     }
 
     @Test
@@ -288,7 +288,7 @@ class GameTest {
         game.playCard(JOE, NINE of CLUBS)
 
         val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(CardPlayed(JOE, NINE of CLUBS))
+        assertThat(cardPlayed).isEqualTo(JOE played (NINE of CLUBS))
     }
 
     @Test
@@ -329,16 +329,16 @@ class GameTest {
             GameStarted(players),
             MaryForcedToPlayHeartsOnSecondTrick.cardsDealt,
             MaryForcedToPlayHeartsOnSecondTrick.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS),
-            CardPlayed(JANE, THREE of CLUBS),
-            CardPlayed(MARY, TEN of CLUBS),
-            CardPlayed(JOE, NINE of CLUBS),
+            BOB played (TWO of CLUBS),
+            JANE played (THREE of CLUBS),
+            MARY played (TEN of CLUBS),
+            JOE played (NINE of CLUBS),
         )
 
         game.playCard(MARY, TEN of HEARTS)
 
         val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(CardPlayed(MARY, TEN of HEARTS))
+        assertThat(cardPlayed).isEqualTo(MARY played (TEN of HEARTS))
     }
 
     @Test
@@ -347,21 +347,21 @@ class GameTest {
             GameStarted(players),
             MaryForcedToPlayHeartsOnSecondTrick.cardsDealt,
             MaryForcedToPlayHeartsOnSecondTrick.cardsPassed,
-            CardPlayed(BOB, TWO of CLUBS),
-            CardPlayed(JANE, ACE of CLUBS),
-            CardPlayed(MARY, TEN of CLUBS),
-            CardPlayed(JOE, FOUR of CLUBS),
+            BOB played (TWO of CLUBS),
+            JANE played (ACE of CLUBS),
+            MARY played (TEN of CLUBS),
+            JOE played (FOUR of CLUBS),
 
-            CardPlayed(JANE, THREE of CLUBS),
-            CardPlayed(MARY, TEN of HEARTS),
-            CardPlayed(JOE, NINE of CLUBS),
-            CardPlayed(BOB, FIVE of CLUBS)
+            JANE played (THREE of CLUBS),
+            MARY played (TEN of HEARTS),
+            JOE played (NINE of CLUBS),
+            BOB played (FIVE of CLUBS)
         )
 
         game.playCard(JOE, SIX of HEARTS)
 
         val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(CardPlayed(JOE, SIX of HEARTS))
+        assertThat(cardPlayed).isEqualTo(JOE played (SIX of HEARTS))
     }
 
     @Test

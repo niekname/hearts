@@ -36,9 +36,7 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
 
 data class Player(val name: PlayerName)
 
-data class PlayerWithCards(val player: Player, val cards: Set<Card>) {
-    fun hasCard(card: Card) = cards.contains(card)
-}
+data class PlayerWithCards(val player: Player, val cards: Set<Card>)
 
 // TODO add specific types for finished / unfinished trick?
 data class Trick(val cardsPlayed: List<CardPlayed>) {
@@ -88,4 +86,6 @@ enum class Symbol(private val value: String) {
     override fun toString() = this.value
 }
 
-infix fun Symbol.of(suit: Suit): Card = Card(suit, this)
+infix fun Symbol.of(suit: Suit) = Card(suit, this)
+
+infix fun Player.played(card: Card) = CardPlayed(this, card)
