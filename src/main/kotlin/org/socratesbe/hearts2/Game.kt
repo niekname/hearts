@@ -156,7 +156,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         _events.filterIsInstance<CardPlayed>().isEmpty()
 
     private fun passingHasHappened() =
-        _events.filterIsInstance<CardsPassed>().isNotEmpty()
+        _events.last() !is CardsDealt
 
     private fun playerHasCard(player: Player, card: Card) =
         whoHasCard(card) == player
