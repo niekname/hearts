@@ -141,7 +141,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         validatePlayerHasCard(cardPlayed.player, cardPlayed.card)
         validatePlayersTurn(cardPlayed.player)
 
-        if (handHasNotStarted())
+        if (isFirstCardOfHand())
             validateOpeningCardIsBeingPlayed(cardPlayed.card)
         else {
             validateLeadingSuitIsBeingFollowed(cardPlayed.player, cardPlayed.card)
@@ -204,7 +204,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         remainingCardsInHandOf(player).all { it.suit == HEARTS }
 
     private fun whoIsAtTurn() = when {
-        handHasNotStarted() -> whoHasCard(OPENING_CARD)
+        isFirstCardOfHand() -> whoHasCard(OPENING_CARD)
         trickIsOngoing() -> players().playerAtLeftSideOf(lastPlayer())
         else -> playerThatWonLastTrick()
     }
@@ -227,7 +227,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun currentCardsOfPlayers() =
         players().asList().map { PlayerWithCards(it, remainingCardsInHandOf(it)) }
 
-    private fun handHasNotStarted() =
+    private fun isFirstCardOfHand() =
         _events.filterIsInstance<CardPlayed>().isEmpty()
 
     private fun passingHasHappened() =
