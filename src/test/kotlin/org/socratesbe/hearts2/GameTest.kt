@@ -514,64 +514,33 @@ class GameTest {
         )
 
         assertThat(game.events.filterIsInstance<CardsPassed>()).containsExactly(
+            defaultCardsPassed,
             CardsPassed(
                 listOf(
                     CardsPassed.PlayerPassing(
                         Player("Mary"),
-                        Player("Joe"),
+                        Player("Jane"),
                         QUEEN of CLUBS,
                         TWO of HEARTS,
                         EIGHT of HEARTS
                     ),
                     CardsPassed.PlayerPassing(
                         Player("Joe"),
-                        Player("Bob"),
+                        Player("Mary"),
                         SIX of DIAMONDS,
                         TWO of CLUBS,
                         FIVE of CLUBS
                     ),
                     CardsPassed.PlayerPassing(
                         Player("Bob"),
-                        Player("Jane"),
+                        Player("Joe"),
                         THREE of CLUBS,
                         TEN of DIAMONDS,
                         NINE of DIAMONDS
                     ),
                     CardsPassed.PlayerPassing(
                         Player("Jane"),
-                        Player("Mary"),
-                        EIGHT of SPADES,
-                        THREE of DIAMONDS,
-                        SIX of HEARTS
-                    ),
-                )
-            ),
-            CardsPassed(
-                listOf(
-                    CardsPassed.PlayerPassing(
-                        Player("Mary"),
-                        Player("Joe"),
-                        QUEEN of CLUBS,
-                        TWO of HEARTS,
-                        EIGHT of HEARTS
-                    ),
-                    CardsPassed.PlayerPassing(
-                        Player("Joe"),
                         Player("Bob"),
-                        SIX of DIAMONDS,
-                        TWO of CLUBS,
-                        FIVE of CLUBS
-                    ),
-                    CardsPassed.PlayerPassing(
-                        Player("Bob"),
-                        Player("Jane"),
-                        THREE of CLUBS,
-                        TEN of DIAMONDS,
-                        NINE of DIAMONDS
-                    ),
-                    CardsPassed.PlayerPassing(
-                        Player("Jane"),
-                        Player("Mary"),
                         EIGHT of SPADES,
                         THREE of DIAMONDS,
                         SIX of HEARTS
@@ -647,7 +616,6 @@ class GameTest {
         CardPlayed(Player("Mary"), ACE of HEARTS),
         CardPlayed(Player("Joe"), FIVE of HEARTS)
     )
-
 
     // rules: https://cardgames.io/hearts/#rules
 
