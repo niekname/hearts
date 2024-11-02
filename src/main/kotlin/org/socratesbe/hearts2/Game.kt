@@ -219,7 +219,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         _events.filterIsInstance<GameStarted>().first().players
 
     private fun cardsDealt() =
-        _events.filterIsInstance<CardsDealt>().first()
+        _events.filterIsInstance<CardsDealt>().last()
 
     private fun whoHasCard(card: Card) =
         currentCardsOfPlayers().first { it.cards.contains(card) }.player
@@ -238,6 +238,10 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun lastPlayer() =
         _events.filterIsInstance<CardPlayed>().last().player
+
+    private fun currentHand() {
+        val hands: Grouping<Event, Boolean> = _events.groupingBy { it is CardsDealt }.
+    }
 
     private fun tricks() =
         _events.filterIsInstance<CardPlayed>()

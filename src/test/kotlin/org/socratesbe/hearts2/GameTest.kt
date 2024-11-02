@@ -55,6 +55,30 @@ class GameTest {
     }
 
     @Test
+    fun `2nd hand - players cannot pass cards they don't have`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassed,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt
+        )
+
+        val throwable = catchThrowable {
+            game.passCards(
+                PlayerWithCards(MARY, setOf(QUEEN of HEARTS, TWO of HEARTS, EIGHT of HEARTS)),
+                PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+                PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+                PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
+            )
+        }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Mary does not have ${QUEEN of HEARTS}")
+    }
+
+    @Test
     fun `should pass cards to the left on first deal`() {
         val game = Game.fromEvents(
             GameStarted(players),
