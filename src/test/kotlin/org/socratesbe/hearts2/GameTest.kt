@@ -468,15 +468,57 @@ class GameTest {
             game.playCard(JANE, KING of CLUBS)
             game.playCard(MARY, ACE of CLUBS)
             game.playCard(JOE, NINE of CLUBS)
-//            game.playCard(BOB, FOUR of HEARTS)
-//
-//            game.playCard(JANE, KING of DIAMONDS)
-//            game.playCard(MARY, SIX of DIAMONDS)
-//            game.playCard(JOE, EIGHT of DIAMONDS)
-//            game.playCard(BOB, THREE of DIAMONDS)
-//
-//            game.playCard(JANE, JACK of SPADES)
+            game.playCard(BOB, FOUR of DIAMONDS)
 
+            game.playCard(MARY, SIX of DIAMONDS)
+            game.playCard(JOE, TEN of DIAMONDS)
+            game.playCard(BOB, THREE of DIAMONDS)
+            game.playCard(JANE, KING of DIAMONDS)
+
+            game.playCard(JANE, TWO of HEARTS)
+            game.playCard(MARY, ACE of HEARTS)
+            game.playCard(JOE, SEVEN of HEARTS)
+            game.playCard(BOB, FOUR of HEARTS)
+
+            game.playCard(MARY, ACE of DIAMONDS)
+            game.playCard(JOE, EIGHT of DIAMONDS)
+            game.playCard(BOB, QUEEN of DIAMONDS)
+            game.playCard(JANE, THREE of HEARTS)
+
+            game.playCard(MARY, TEN of SPADES)
+            game.playCard(JOE, QUEEN of SPADES)
+            game.playCard(BOB, SIX of SPADES)
+            game.playCard(JANE, KING of SPADES)
+
+            game.playCard(JANE, EIGHT of CLUBS)
+            game.playCard(MARY, TEN of CLUBS)
+            game.playCard(JOE, TWO of SPADES)
+            game.playCard(BOB, ACE of SPADES)
+
+            game.playCard(MARY, FIVE of DIAMONDS)
+            game.playCard(JOE, NINE of DIAMONDS)
+            game.playCard(BOB, TWO of DIAMONDS)
+            game.playCard(JANE, KING of HEARTS)
+
+            game.playCard(JOE, SEVEN of SPADES)
+            game.playCard(BOB, FOUR of SPADES)
+            game.playCard(JANE, THREE of SPADES)
+            game.playCard(MARY, NINE of SPADES)
+
+            game.playCard(MARY, SEVEN of DIAMONDS)
+            game.playCard(JOE, QUEEN of HEARTS)
+            game.playCard(BOB, NINE of HEARTS)
+            game.playCard(JANE, JACK of HEARTS)
+
+            game.playCard(MARY, TEN of HEARTS)
+            game.playCard(JOE, FIVE of HEARTS)
+            game.playCard(BOB, SIX of HEARTS)
+            game.playCard(JANE, EIGHT of HEARTS)
+
+            game.playCard(MARY, JACK of DIAMONDS)
+            game.playCard(JOE, FIVE of SPADES)
+            game.playCard(BOB, EIGHT of SPADES)
+            game.playCard(JANE, JACK of SPADES)
         }
     }
 
