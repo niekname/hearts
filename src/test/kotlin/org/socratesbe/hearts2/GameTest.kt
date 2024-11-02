@@ -560,6 +560,42 @@ class GameTest {
         }
     }
 
+    @Test
+    fun `game ends when a score of 100 or higher is reached`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.filterNot { it == DefaultGame.firstHand.last() }.toTypedArray()
+        )
+
+        game.playCard(JOE, FIVE of HEARTS)
+
+        assertThat(game.events.last())
+            .isEqualTo(JOE played (FIVE of HEARTS))
+    }
+
     // TODO add full game test
 
     private fun assertThatCardsAreDealt(cardsDealt: CardsDealt) {
