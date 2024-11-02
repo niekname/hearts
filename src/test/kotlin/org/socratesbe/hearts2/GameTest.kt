@@ -439,6 +439,27 @@ class GameTest {
 
         assertThatNoException().isThrownBy {
             game.playCard(MARY, TWO of CLUBS)
+            game.playCard(JOE, THREE of CLUBS)
+            game.playCard(BOB, SEVEN of CLUBS)
+            game.playCard(JANE, SIX of CLUBS)
+
+            game.playCard(BOB, JACK of CLUBS)
+            game.playCard(JANE, QUEEN of CLUBS)
+            game.playCard(MARY, FIVE of CLUBS)
+            game.playCard(JOE, FOUR of CLUBS)
+
+            game.playCard(JANE, KING of CLUBS)
+            game.playCard(MARY, ACE of CLUBS)
+            game.playCard(JOE, NINE of CLUBS)
+//            game.playCard(BOB, FOUR of HEARTS)
+//
+//            game.playCard(JANE, KING of DIAMONDS)
+//            game.playCard(MARY, SIX of DIAMONDS)
+//            game.playCard(JOE, EIGHT of DIAMONDS)
+//            game.playCard(BOB, THREE of DIAMONDS)
+//
+//            game.playCard(JANE, JACK of SPADES)
+
         }
     }
 

@@ -43,6 +43,12 @@ data class Hand(
     val cardsPassed: CardsPassed,
     val cardsPlayed: List<CardPlayed>
 ) {
+    fun isFirstCardOfHand() =
+        cardsPlayed.isEmpty()
+
+    fun cardsPlayed() =
+        cardsPlayed.map { it.card }.toSet()
+
     fun remainingCardsInHandOf(player: Player) =
         cardsDealt.cardsForPlayer(player) +
                 cardsPassedTo(player) -
