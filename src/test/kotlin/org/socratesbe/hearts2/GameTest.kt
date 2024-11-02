@@ -1,7 +1,6 @@
 package org.socratesbe.hearts2
 
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.catchThrowable
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.socratesbe.hearts2.CardsPassed.PlayerPassing
 import org.socratesbe.hearts2.Suit.*
@@ -425,6 +424,22 @@ class GameTest {
             DefaultGame.cardsPassedHand1,
             DefaultGame.cardsPassedHand2
         )
+    }
+
+    @Test
+    fun `play a full second round`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand2
+        )
+
+        assertThatNoException().isThrownBy {
+            game.playCard(MARY, TWO of CLUBS)
+        }
     }
 
     // TODO add full game test
