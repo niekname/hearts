@@ -44,9 +44,9 @@ data class Hand(
     val cardsPlayed: List<CardPlayed>
 ) {
     fun remainingCardsInHandOf(player: Player) =
-        cardsDealt.cardsForPlayer(player) -
-                cardsPassedBy(player) +
+        cardsDealt.cardsForPlayer(player) +
                 cardsPassedTo(player) -
+                cardsPassedBy(player) -
                 cardsPlayedBy(player)
 
     private fun cardsPlayedBy(player: Player) =
