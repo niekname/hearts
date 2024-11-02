@@ -155,7 +155,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     }
 
     private fun validatePlayerCanPassCard(player: Player, card: Card) {
-        if (!cardsDealt().cardsForPlayer(player).contains(card))
+        if (!lastCardsDealt().cardsForPlayer(player).contains(card))
             throw RuntimeException("${player.name} does not have $card")
     }
 
@@ -192,7 +192,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         throw RuntimeException("$HEARTS have not been broken")
     }
 
-    private fun isFirstTrick() = tricks().size == 1
+    private fun isFirstTrick() = currentHand().tricks().size == 1
 
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
         if (cardsPlayed().contains(card))
@@ -222,7 +222,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun players() =
         _events.filterIsInstance<GameStarted>().first().players
 
-    private fun cardsDealt() =
+    private fun lastCardsDealt() =
         _events.filterIsInstance<CardsDealt>().last()
 
     private fun whoHasCard(card: Card) =

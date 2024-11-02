@@ -49,6 +49,9 @@ data class Hand(
     fun cardsPlayed() =
         cardsPlayed.map { it.card }.toSet()
 
+    fun tricks() =
+        cardsPlayed.chunked(4) // TODO magic number.map(::Trick)
+
     fun remainingCardsInHandOf(player: Player) =
         cardsDealt.cardsForPlayer(player) +
                 cardsPassedTo(player) -
