@@ -185,9 +185,14 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun validateHeartsCanBePlayed(cardPlayed: CardPlayed) {
         if (cardPlayed.card.suit != HEARTS) return
         if (playerHasOnlyHearts(cardPlayed.player)) return
-        if (heartsHaveBeenBroken())
-            throw RuntimeException("$HEARTS have not been broken")
+
+        if (heartsHaveBeenBroken()) return
+        if (!isFirstTrick() && cannotFollowSuit(cardPlayed.player, tricks().last().leadingSuit())) return
+
+        throw RuntimeException("$HEARTS have not been broken")
     }
+
+    private fun isFirstTrick() = tricks().size == 1
 
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
         if (cardsPlayed().contains(card))
@@ -197,7 +202,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun cannotFollowSuit(player: Player, suit: Suit) =
         currentHand().remainingCardsInHandOf(player).none { it.suit == suit }
 
-    private fun heartsHaveBeenBroken() = cardsPlayed().none { it.suit == HEARTS }
+    private fun heartsHaveBeenBroken() = cardsPlayed().any { it.suit == HEARTS }
 
     private fun playerHasOnlyHearts(player: Player) =
         currentHand().remainingCardsInHandOf(player).all { it.suit == HEARTS }
