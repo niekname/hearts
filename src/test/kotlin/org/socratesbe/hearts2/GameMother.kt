@@ -249,6 +249,14 @@ object JaneHasNoClubs {
             PlayerPassing(JANE, MARY, THREE of CLUBS, THREE of DIAMONDS, SIX of HEARTS),
         )
     )
+
+    val firstTrickOfFirstHand = listOf(
+        BOB played (TWO of CLUBS),
+        JANE played (KING of DIAMONDS),
+        MARY played (TEN of CLUBS),
+        JOE played (QUEEN of CLUBS),
+    )
+
 }
 
 object MaryHasOnlyHearts {

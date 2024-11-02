@@ -291,6 +291,23 @@ class GameTest {
     }
 
     @Test
+    fun `player can play hearts from the second trick onward if they cannot follow leading suit`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            JaneHasNoClubs.cardsDealt,
+            JaneHasNoClubs.cardsPassed,
+            *JaneHasNoClubs.firstTrickOfFirstHand.toTypedArray(),
+            JOE played (NINE of CLUBS),
+            BOB played (SEVEN of CLUBS),
+        )
+
+        game.playCard(JANE, KING of HEARTS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(JANE played (KING of HEARTS))
+    }
+
+    @Test
     fun `player cannot play a previously played card`() {
         val game = Game.fromEvents(
             GameStarted(players),
