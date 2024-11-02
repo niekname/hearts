@@ -35,10 +35,10 @@ class Game private constructor(events: List<Event> = emptyList()) {
         if (passingHasHappened())
             throw RuntimeException("Cards have already been passed")
 
-        player1pass.cards.forEach { validatePlayerHasCard(player1pass.player, it) }
-        player2pass.cards.forEach { validatePlayerHasCard(player2pass.player, it) }
-        player3pass.cards.forEach { validatePlayerHasCard(player3pass.player, it) }
-        player4pass.cards.forEach { validatePlayerHasCard(player4pass.player, it) }
+        player1pass.cards.forEach { validatePlayerCanPassCard(player1pass.player, it) }
+        player2pass.cards.forEach { validatePlayerCanPassCard(player2pass.player, it) }
+        player3pass.cards.forEach { validatePlayerCanPassCard(player3pass.player, it) }
+        player4pass.cards.forEach { validatePlayerCanPassCard(player4pass.player, it) }
 
         when {
             isFirstDeal() -> passToTheLeft(player1pass, player2pass, player3pass, player4pass)
@@ -154,6 +154,11 @@ class Game private constructor(events: List<Event> = emptyList()) {
             throw RuntimeException("Cannot play cards before passing has finished")
     }
 
+    private fun validatePlayerCanPassCard(player: Player, card: Card) {
+        if (!cardsDealt().cardsForPlayer(player).contains(card))
+            throw RuntimeException("${player.name} does not have $card")
+    }
+
     private fun validatePlayerHasCard(player: Player, card: Card) {
         if (!playerHasCard(player, card))
             throw RuntimeException("${player.name} does not have $card")
@@ -225,7 +230,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         currentCardsOfPlayers().first { it.cards.contains(card) }.player
 
     private fun currentCardsOfPlayers() =
-        players().asList().map { PlayerWithCards(it, remainingCardsInHandOf(it)) }
+        players().asList().map { PlayerWithCards(it, currentHand().remainingCardsInHandOf(it)) }
 
     private fun isFirstCardOfHand() =
         _events.filterIsInstance<CardPlayed>().isEmpty()
@@ -239,8 +244,10 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun lastPlayer() =
         _events.filterIsInstance<CardPlayed>().last().player
 
-    private fun currentHand() {
-        val hands: Grouping<Event, Boolean> = _events.groupingBy { it is CardsDealt }.
+    private fun currentHand(): Hand {
+        val lastCardsDealtIndex = _events.indexOfLast { it is CardsDealt }
+        val sublist = _events.subList(lastCardsDealtIndex, _events.size)
+        return Hand(sublist.first() as CardsDealt, sublist[1] as CardsPassed, sublist.filterIsInstance<CardPlayed>())
     }
 
     private fun tricks() =
@@ -264,5 +271,8 @@ class Game private constructor(events: List<Event> = emptyList()) {
         }
 
     private fun cardsPassedTo(player: Player) =
-        cardsPassedBy(players().playerAtRightSideOf(player))
+        when {
+            passingHasHappened() -> _events.filterIsInstance<CardsPassed>().first().toPlayer(player).cards()
+            else -> emptySet()
+        }
 }

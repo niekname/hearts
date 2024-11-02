@@ -38,6 +38,30 @@ data class Player(val name: PlayerName)
 
 data class PlayerWithCards(val player: Player, val cards: Set<Card>)
 
+data class Hand(
+    val cardsDealt: CardsDealt,
+    val cardsPassed: CardsPassed,
+    val cardsPlayed: List<CardPlayed>
+) {
+    fun remainingCardsInHandOf(player: Player) =
+        cardsDealt.cardsForPlayer(player) -
+                cardsPassedBy(player) +
+                cardsPassedTo(player) -
+                cardsPlayedBy(player)
+
+    private fun cardsPlayedBy(player: Player) =
+        cardsPlayed
+            .filter { it.player == player }
+            .map { it.card }
+            .toSet()
+
+    private fun cardsPassedBy(player: Player) =
+        cardsPassed.byPlayer(player).cards()
+
+    private fun cardsPassedTo(player: Player) =
+        cardsPassed.toPlayer(player).cards()
+}
+
 // TODO add specific types for finished / unfinished trick?
 data class Trick(val cardsPlayed: List<CardPlayed>) {
     fun isFinished() = cardsPlayed.size == 4 // TODO this is the amount of players

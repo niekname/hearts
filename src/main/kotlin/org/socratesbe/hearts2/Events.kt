@@ -40,6 +40,9 @@ data class CardsPassed(
     fun byPlayer(player: Player) =
         playerPassing.first { it.from == player }
 
+    fun toPlayer(player: Player) =
+        playerPassing.first { it.to == player }
+
     data class PlayerPassing(
         val from: Player,
         val to: Player,
