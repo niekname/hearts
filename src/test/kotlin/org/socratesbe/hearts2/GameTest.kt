@@ -55,30 +55,6 @@ class GameTest {
     }
 
     @Test
-    fun `2nd hand - players cannot pass cards they don't have`() {
-        val game = Game.fromEvents(
-            GameStarted(players),
-            DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
-            *DefaultGame.firstHand.toTypedArray(),
-            DefaultGame.cardsDealt
-        )
-
-        val throwable = catchThrowable {
-            game.passCards(
-                PlayerWithCards(MARY, setOf(QUEEN of HEARTS, TWO of HEARTS, EIGHT of HEARTS)),
-                PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
-                PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
-                PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
-            )
-        }
-
-        assertThat(throwable)
-            .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("Mary does not have ${QUEEN of HEARTS}")
-    }
-
-    @Test
     fun `should pass cards to the left on first deal`() {
         val game = Game.fromEvents(
             GameStarted(players),
@@ -111,7 +87,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed
+            DefaultGame.cardsPassedHand1
         )
 
         val throwable = catchThrowable {
@@ -147,7 +123,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed
+            DefaultGame.cardsPassedHand1
         )
 
         val throwable = catchThrowable { game.playCard(BOB, SIX of DIAMONDS) }
@@ -162,7 +138,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed
+            DefaultGame.cardsPassedHand1
         )
 
         game.playCard(BOB, TWO of CLUBS)
@@ -177,7 +153,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             BOB played (TWO of CLUBS)
         )
 
@@ -194,7 +170,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             BOB played (TWO of CLUBS)
         )
 
@@ -210,7 +186,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             BOB played (TWO of CLUBS)
         )
 
@@ -225,7 +201,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             BOB played (TWO of CLUBS)
         )
 
@@ -289,7 +265,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             *DefaultGame.firstTrickOfFirstHand.toTypedArray()
         )
 
@@ -305,7 +281,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             *DefaultGame.firstTrickOfFirstHand.toTypedArray()
         )
 
@@ -320,7 +296,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             *DefaultGame.firstTrickOfFirstHand.toTypedArray()
         )
 
@@ -336,7 +312,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             *DefaultGame.firstTrickOfFirstHand.toTypedArray()
         )
 
@@ -393,7 +369,7 @@ class GameTest {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             *DefaultGame.firstHand.filterNot { it == DefaultGame.firstHand.last() }.toTypedArray()
         )
 
@@ -405,11 +381,35 @@ class GameTest {
     }
 
     @Test
+    fun `2nd hand - players cannot pass cards they don't have`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt
+        )
+
+        val throwable = catchThrowable {
+            game.passCards(
+                PlayerWithCards(MARY, setOf(QUEEN of HEARTS, TWO of HEARTS, EIGHT of HEARTS)),
+                PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+                PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+                PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
+            )
+        }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Mary does not have ${QUEEN of HEARTS}")
+    }
+
+    @Test
     fun `should pass cards to the right on second hand`() {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassed,
+            DefaultGame.cardsPassedHand1,
             *DefaultGame.firstHand.toTypedArray(),
             DefaultGame.cardsDealt
         )
@@ -422,15 +422,8 @@ class GameTest {
         )
 
         assertThat(game.events.filterIsInstance<CardsPassed>()).containsExactly(
-            DefaultGame.cardsPassed,
-            CardsPassed(
-                listOf(
-                    PlayerPassing(from = MARY, to = JANE, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
-                    PlayerPassing(from = JOE, to = MARY, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
-                    PlayerPassing(from = BOB, to = JOE, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
-                    PlayerPassing(from = JANE, to = BOB, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
-                )
-            )
+            DefaultGame.cardsPassedHand1,
+            DefaultGame.cardsPassedHand2
         )
     }
 

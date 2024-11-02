@@ -79,12 +79,21 @@ object DefaultGame {
         )
     )
 
-    val cardsPassed = CardsPassed(
+    val cardsPassedHand1 = CardsPassed(
         listOf(
             PlayerPassing(MARY, JOE, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
             PlayerPassing(JOE, BOB, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
             PlayerPassing(BOB, JANE, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
             PlayerPassing(JANE, MARY, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
+        )
+    )
+
+    val cardsPassedHand2 = CardsPassed(
+        listOf(
+            PlayerPassing(from = MARY, to = JANE, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
+            PlayerPassing(from = JOE, to = MARY, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+            PlayerPassing(from = BOB, to = JOE, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
+            PlayerPassing(from = JANE, to = BOB, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
         )
     )
 
