@@ -33,6 +33,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
         player3pass: PlayerWithCards,
         player4pass: PlayerWithCards
     ) {
+        // TODO needs validation that this is not 4 times the same player passing the same cards etc
         if (passingHasHappened())
             throw RuntimeException("Cards have already been passed")
 
@@ -41,12 +42,26 @@ class Game private constructor(events: List<Event> = emptyList()) {
         player3pass.cards.forEach { validatePlayerCanPassCard(player3pass.player, it) }
         player4pass.cards.forEach { validatePlayerCanPassCard(player4pass.player, it) }
 
-        when {
-            isFirstHand() -> passToTheLeft(player1pass, player2pass, player3pass, player4pass)
-            isSecondHand() -> passToTheRight(player1pass, player2pass, player3pass, player4pass)
-            else -> passAcross(player1pass, player2pass, player3pass, player4pass)
-        }
+        _events += CardsPassed(
+            listOf(player1pass.passCards(), player2pass.passCards(), player3pass.passCards(), player4pass.passCards())
+        )
     }
+
+    private fun PlayerWithCards.passCards() =
+        CardsPassed.PlayerPassing(
+            from = player,
+            to = player.shouldPassTo(),
+            card1 = cards.elementAt(0),
+            card2 = cards.elementAt(1),
+            card3 = cards.elementAt(2)
+        )
+
+    private fun Player.shouldPassTo() =
+        when {
+            isFirstHand() -> players().playerAtLeftSideOf(this)
+            isSecondHand() -> players().playerAtRightSideOf(this)
+            else -> players().playerAcross(this)
+        }
 
     private fun isFirstHand() =
         _events.filterIsInstance<CardsDealt>().size == 1
@@ -54,126 +69,13 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun isSecondHand() =
         _events.filterIsInstance<CardsDealt>().size == 2
 
-    private fun passToTheLeft(
-        player1pass: PlayerWithCards,
-        player2pass: PlayerWithCards,
-        player3pass: PlayerWithCards,
-        player4pass: PlayerWithCards
-    ) {
-        val player1 = CardsPassed.PlayerPassing(
-            player1pass.player,
-            players().playerAtLeftSideOf(player1pass.player),
-            player1pass.cards.elementAt(0),
-            player1pass.cards.elementAt(1),
-            player1pass.cards.elementAt(2)
-        )
-        val player2 = CardsPassed.PlayerPassing(
-            player2pass.player,
-            players().playerAtLeftSideOf(player2pass.player),
-            player2pass.cards.elementAt(0),
-            player2pass.cards.elementAt(1),
-            player2pass.cards.elementAt(2)
-        )
-        val player3 = CardsPassed.PlayerPassing(
-            player3pass.player,
-            players().playerAtLeftSideOf(player3pass.player),
-            player3pass.cards.elementAt(0),
-            player3pass.cards.elementAt(1),
-            player3pass.cards.elementAt(2)
-        )
-        val player4 = CardsPassed.PlayerPassing(
-            player4pass.player,
-            players().playerAtLeftSideOf(player4pass.player),
-            player4pass.cards.elementAt(0),
-            player4pass.cards.elementAt(1),
-            player4pass.cards.elementAt(2)
-        )
-
-        _events += CardsPassed(listOf(player1, player2, player3, player4))
-    }
-
-    private fun passToTheRight(
-        player1pass: PlayerWithCards,
-        player2pass: PlayerWithCards,
-        player3pass: PlayerWithCards,
-        player4pass: PlayerWithCards
-    ) {
-        val player1 = CardsPassed.PlayerPassing(
-            player1pass.player,
-            players().playerAtRightSideOf(player1pass.player),
-            player1pass.cards.elementAt(0),
-            player1pass.cards.elementAt(1),
-            player1pass.cards.elementAt(2)
-        )
-        val player2 = CardsPassed.PlayerPassing(
-            player2pass.player,
-            players().playerAtRightSideOf(player2pass.player),
-            player2pass.cards.elementAt(0),
-            player2pass.cards.elementAt(1),
-            player2pass.cards.elementAt(2)
-        )
-        val player3 = CardsPassed.PlayerPassing(
-            player3pass.player,
-            players().playerAtRightSideOf(player3pass.player),
-            player3pass.cards.elementAt(0),
-            player3pass.cards.elementAt(1),
-            player3pass.cards.elementAt(2)
-        )
-        val player4 = CardsPassed.PlayerPassing(
-            player4pass.player,
-            players().playerAtRightSideOf(player4pass.player),
-            player4pass.cards.elementAt(0),
-            player4pass.cards.elementAt(1),
-            player4pass.cards.elementAt(2)
-        )
-
-        _events += CardsPassed(listOf(player1, player2, player3, player4))
-    }
-
-    private fun passAcross(
-        player1pass: PlayerWithCards,
-        player2pass: PlayerWithCards,
-        player3pass: PlayerWithCards,
-        player4pass: PlayerWithCards
-    ) {
-        val player1 = CardsPassed.PlayerPassing(
-            player1pass.player,
-            players().playerAcross(player1pass.player),
-            player1pass.cards.elementAt(0),
-            player1pass.cards.elementAt(1),
-            player1pass.cards.elementAt(2)
-        )
-        val player2 = CardsPassed.PlayerPassing(
-            player2pass.player,
-            players().playerAcross(player2pass.player),
-            player2pass.cards.elementAt(0),
-            player2pass.cards.elementAt(1),
-            player2pass.cards.elementAt(2)
-        )
-        val player3 = CardsPassed.PlayerPassing(
-            player3pass.player,
-            players().playerAcross(player3pass.player),
-            player3pass.cards.elementAt(0),
-            player3pass.cards.elementAt(1),
-            player3pass.cards.elementAt(2)
-        )
-        val player4 = CardsPassed.PlayerPassing(
-            player4pass.player,
-            players().playerAcross(player4pass.player),
-            player4pass.cards.elementAt(0),
-            player4pass.cards.elementAt(1),
-            player4pass.cards.elementAt(2)
-        )
-
-        _events += CardsPassed(listOf(player1, player2, player3, player4))
-    }
-
     fun playCard(player: Player, card: Card) {
         CardPlayed(player, card)
             .also { checkRules(it) }
             .let { _events += it }
 
-        if (!gameHasEnded() && allCardsPlayed()) dealCards()
+        if (currentHand().allCardsPlayed() && !gameHasEnded())
+            dealCards()
     }
 
     private fun gameHasEnded() = anyPlayerReachedMaxScore()
@@ -184,8 +86,6 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .groupingBy { it.player }
             .fold(0) { acc, elem -> acc + elem.score }
             .any { it.value >= MAX_SCORE }
-
-    private fun allCardsPlayed() = cardsPlayed().size == Deck().cards.size
 
     private fun checkRules(cardPlayed: CardPlayed) {
         validatePassingHasHappened()
@@ -227,7 +127,7 @@ class Game private constructor(events: List<Event> = emptyList()) {
     }
 
     private fun validateLeadingSuitIsBeingFollowed(player: Player, card: Card) {
-        val lastTrick = tricks().last()
+        val lastTrick = lastTrick()
         if (lastTrick.isFinished()) return
         if (cannotFollowSuit(player, lastTrick.leadingSuit())) return
         if (lastTrick.leadingSuit() != card.suit)
@@ -238,38 +138,28 @@ class Game private constructor(events: List<Event> = emptyList()) {
         if (cardPlayed.card.suit != HEARTS) return
         if (playerHasOnlyHearts(cardPlayed.player)) return
 
-        if (heartsHaveBeenBroken()) return
-        if (!isFirstTrick() && cannotFollowSuit(cardPlayed.player, tricks().last().leadingSuit())) return
+        if (currentHand().heartsHaveBeenBroken()) return
+        if (!currentHand().isFirstTrick() && cannotFollowSuit(cardPlayed.player, lastTrick().leadingSuit())) return
 
         throw RuntimeException("$HEARTS have not been broken")
     }
 
-    private fun isFirstTrick() = currentHand().tricks().size == 1
-
     private fun validateCardHasNotYetBeenPlayed(card: Card) {
-        if (cardsPlayed().contains(card))
+        if (currentHand().cardHasBeenPlayed(card))
             throw RuntimeException("$card has already been played")
     }
 
     private fun cannotFollowSuit(player: Player, suit: Suit) =
         currentHand().remainingCardsInHandOf(player).none { it.suit == suit }
 
-    private fun heartsHaveBeenBroken() = cardsPlayed().any { it.suit == HEARTS }
-
     private fun playerHasOnlyHearts(player: Player) =
         currentHand().remainingCardsInHandOf(player).all { it.suit == HEARTS }
 
     private fun whoIsAtTurn() = when {
         currentHand().isFirstCardOfHand() -> whoHasCard(OPENING_CARD)
-        trickIsOngoing() -> players().playerAtLeftSideOf(lastPlayer())
-        else -> playerThatWonLastTrick()
+        lastTrick().isOngoing() -> players().playerAtLeftSideOf(lastPlayer())
+        else -> lastTrick().wonBy()
     }
-
-    private fun trickIsOngoing() =
-        !tricks().last().isFinished()
-
-    private fun playerThatWonLastTrick() =
-        tricks().last { it.isFinished() }.wonBy()
 
     private fun players() =
         _events.filterIsInstance<GameStarted>().first().players
@@ -303,6 +193,5 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .chunked(4) // TODO magic number
             .map(::Trick)
 
-    private fun cardsPlayed() =
-        currentHand().cardsPlayed()
+    private fun lastTrick() = tricks().last()
 }

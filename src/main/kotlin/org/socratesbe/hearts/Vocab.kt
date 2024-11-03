@@ -59,17 +59,22 @@ data class Hand(
     fun isFirstCardOfHand() =
         cardsPlayed.isEmpty()
 
-    fun cardsPlayed() =
-        cardsPlayed.map { it.card }.toSet()
-
-    fun tricks() =
-        cardsPlayed.chunked(4) // TODO magic number.map(::Trick)
-
     fun remainingCardsInHandOf(player: Player) =
         cardsDealt.cardsForPlayer(player) +
                 cardsPassedTo(player) -
                 cardsPassedBy(player) -
                 cardsPlayedBy(player)
+
+    fun isFirstTrick() = tricks().size == 1
+
+    fun heartsHaveBeenBroken() = cardsPlayed.any { it.card.suit == HEARTS }
+
+    fun cardHasBeenPlayed(card: Card) = cardsPlayed.any { it.card == card }
+
+    fun allCardsPlayed() = cardsPlayed.size == Deck().cards.size
+
+    private fun tricks() =
+        cardsPlayed.chunked(4) // TODO magic number
 
     private fun cardsPlayedBy(player: Player) =
         cardsPlayed
@@ -87,6 +92,7 @@ data class Hand(
 // TODO add specific types for finished / unfinished trick?
 data class Trick(val cardsPlayed: List<CardPlayed>) {
     fun isFinished() = cardsPlayed.size == 4 // TODO this is the amount of players
+    fun isOngoing() = !isFinished()
     fun wonBy() = highestRankingCardInLeadingSuit().player
     private fun highestRankingCardInLeadingSuit() =
         cardsPlayed
