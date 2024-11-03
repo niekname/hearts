@@ -35,6 +35,15 @@ data class Players(val player1: Player, val player2: Player, val player3: Player
             else -> error("impossible")
         }
 
+    fun playerAcross(player: Player) =
+        when (player) {
+            player1 -> player3
+            player2 -> player4
+            player3 -> player1
+            player4 -> player2
+            else -> error("impossible")
+        }
+
     fun asList() = listOf(player1, player2, player3, player4)
 }
 
