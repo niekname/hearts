@@ -7,6 +7,7 @@ import org.socratesbe.hearts2.Symbol.TWO
 class Game private constructor(events: List<Event> = emptyList()) {
     companion object {
         private val OPENING_CARD = TWO of CLUBS
+        private const val MAX_SCORE = 100
         fun start(players: Players) = Game().also { it.start(players) }
         fun fromEvents(vararg event: Event) = Game(event.asList())
     }
@@ -133,14 +134,14 @@ class Game private constructor(events: List<Event> = emptyList()) {
         if (!gameHasEnded() && allCardsPlayed()) dealCards()
     }
 
-    private fun gameHasEnded(): Boolean {
-        val allPlayerScores = tricks().map { it.score() }
-        val scorePerPlayer = allPlayerScores.groupingBy { it.player }
-            .fold(0) { acc, elem -> acc + elem.score }
-            .map { PlayerScore(it.key, it.value) }
+    private fun gameHasEnded() = anyPlayerReachedMaxScore()
 
-        return scorePerPlayer.any {it.score >= 100}
-    }
+    private fun anyPlayerReachedMaxScore() =
+        tricks()
+            .map { it.score() }
+            .groupingBy { it.player }
+            .fold(0) { acc, elem -> acc + elem.score }
+            .any { it.value >= MAX_SCORE }
 
     private fun allCardsPlayed() = cardsPlayed().size == Deck().cards.size
 
