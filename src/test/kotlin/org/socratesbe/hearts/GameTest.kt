@@ -1,626 +1,604 @@
 package org.socratesbe.hearts
 
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.provider.Arguments
-import org.socratesbe.hearts.DealMother.dealCardsSoJoeHas2ofClubs
-import org.socratesbe.hearts.DealMother.dealFixedCards
-import org.socratesbe.hearts.DealMother.maryForcedToPlayHeartsOnSecondRound
-import org.socratesbe.hearts.DealMother.maryHasNoClubs
-import org.socratesbe.hearts.DealMother.maryHasOnlyHearts
-import org.socratesbe.hearts.application.api.command.*
-import org.socratesbe.hearts.application.api.query.*
-import org.socratesbe.hearts.domain.*
-import org.socratesbe.hearts.domain.Suit.*
-import org.socratesbe.hearts.domain.Symbol.*
-import java.util.stream.Stream
+import org.socratesbe.hearts.CardsPassed.PlayerPassing
+import org.socratesbe.hearts.Suit.*
+import org.socratesbe.hearts.Symbol.*
 
 class GameTest {
 
-    private var context = Context(Game(DefaultFixedDealer()))
+    @Test
+    fun `each player is dealt 13 unique cards on game start`() {
+        val game = Game.start(players)
 
-    class DefaultFixedDealer : Dealer {
-        override fun dealCardsFor(players: List<Player>): List<PlayerWithCards> {
-            return players.map { PlayerWithCards(it, dealFixedCards(it.name)) }
+        assertThat(game.events.first()).isEqualTo(GameStarted(players))
+        val cardsDealt = game.events.last() as CardsDealt
+        assertThatCardsAreDealt(cardsDealt)
+    }
+
+    @Test
+    fun `cards are shuffled`() {
+        val game = Game.start(players)
+        val game2 = Game.start(players)
+
+        val game1Cards = game.events.last() as CardsDealt
+        val game2Cards = game2.events.last() as CardsDealt
+
+        assertThat(game1Cards.player1WithCards).isNotEqualTo(game2Cards.player1WithCards)
+        assertThat(game1Cards.player2WithCards).isNotEqualTo(game2Cards.player2WithCards)
+        assertThat(game1Cards.player3WithCards).isNotEqualTo(game2Cards.player3WithCards)
+        assertThat(game1Cards.player4WithCards).isNotEqualTo(game2Cards.player4WithCards)
+    }
+
+    // TODO parameterize?
+    @Test
+    fun `players cannot pass cards they don't have`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt
+        )
+
+        val throwable = catchThrowable {
+            game.passCards(
+                PlayerWithCards(MARY, setOf(QUEEN of HEARTS, TWO of HEARTS, EIGHT of HEARTS)),
+                PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+                PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+                PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
+            )
         }
-    }
 
-    class JoeStartsFixedDealer : Dealer {
-        override fun dealCardsFor(players: List<Player>) =
-            players.map { PlayerWithCards(it, dealCardsSoJoeHas2ofClubs(it.name)) }
-    }
-
-
-    @Test
-    fun `game can start when exactly four players have joined`() {
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-
-        val result = startGame()
-
-        assertThat(result).isEqualTo(GameHasStarted)
-        assertThat(gameHasStarted()).isTrue()
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Mary does not have ${QUEEN of HEARTS}")
     }
 
     @Test
-    fun `game cannot start when less than four players have joined`() {
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
+    fun `should pass cards to the left on first deal`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt
+        )
 
-        val result = startGame()
+        game.passCards(
+            PlayerWithCards(MARY, setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS)),
+            PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+            PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+            PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
+        )
 
-        assertThat(result).isEqualTo(GameHasNotStarted("Not enough players joined"))
-        assertThat(gameHasStarted()).isFalse()
-    }
-
-    @Test
-    fun `no more than four players can join the game`() {
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-
-        val result = joinGame("Sue")
-
-        assertThat(result).isEqualTo(
-            PlayerCouldNotJoin(
-                player = "Sue",
-                reason = "Game already has four players",
+        assertThat(game.events.filterIsInstance<CardsPassed>().first()).isEqualTo(
+            CardsPassed(
+                listOf(
+                    PlayerPassing(from = MARY, to = JOE, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
+                    PlayerPassing(from = JOE, to = BOB, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+                    PlayerPassing(from = BOB, to = JANE, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
+                    PlayerPassing(from = JANE, to = MARY, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
+                )
             )
         )
     }
 
+    // TODO players should pass exactly 3 cards
+
     @Test
-    fun `each player is dealt 13 unique cards on game start`() {
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
+    fun `cannot pass twice`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1
+        )
 
-        startGame()
+        val throwable = catchThrowable {
+            game.passCards(
+                PlayerWithCards(MARY, setOf(TEN of HEARTS, JACK of DIAMONDS, TEN of CLUBS)),
+                PlayerWithCards(JOE, setOf(SEVEN of HEARTS, NINE of CLUBS, QUEEN of HEARTS)),
+                PlayerWithCards(BOB, setOf(QUEEN of DIAMONDS, SIX of SPADES, FOUR of DIAMONDS)),
+                PlayerWithCards(JANE, setOf(KING of DIAMONDS, KING of SPADES, THREE of HEARTS))
+            )
+        }
 
-        assertThat(cardsInHandOf("Mary").size).isEqualTo(13)
-        assertThat(cardsInHandOf("Joe").size).isEqualTo(13)
-        assertThat(cardsInHandOf("Bob").size).isEqualTo(13)
-        assertThat(cardsInHandOf("Jane").size).isEqualTo(13)
-
-        val uniqueCards = cardsInHandOf("Mary").toSet() + cardsInHandOf("Joe").toSet() +
-                cardsInHandOf("Bob").toSet() + cardsInHandOf("Jane").toSet()
-        assertThat(uniqueCards.size).isEqualTo(52)
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Cards have already been passed")
     }
 
     @Test
-    fun `player with 2 of clubs gets the first turn`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+    fun `cannot play a card before passing has finished`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
+        val throwable = catchThrowable { game.playCard(BOB, TWO of CLUBS) }
 
-        startGame()
-
-        assertThat(whoseTurnIsIt()).isEqualTo("Bob")
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Cannot play cards before passing has finished")
     }
 
     @Test
-    fun `player with 2 of clubs gets the first turn - Joe`() {
-        context = Context(Game(JoeStartsFixedDealer()))
+    fun `TWO of CLUBS must be the first card played in the hand`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1
+        )
 
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+        val throwable = catchThrowable { game.playCard(BOB, SIX of DIAMONDS) }
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-
-        startGame()
-
-        assertThat(whoseTurnIsIt()).isEqualTo("Joe")
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("${TWO of CLUBS} must be the first card played in the hand")
     }
 
     @Test
-    fun `player who is not on turn cannot play a card`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+    fun `player with TWO of CLUBS starts the hand`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
+        game.playCard(BOB, TWO of CLUBS)
 
-        val result = playCard("Joe", KING of HEARTS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("It's not Joe's turn to play"))
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(BOB played (TWO of CLUBS))
     }
 
+    // TODO parameterize
     @Test
     fun `player cannot play a card they don't have in their hand`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            BOB played (TWO of CLUBS)
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
+        val throwable = catchThrowable { game.playCard(JANE, ACE of SPADES) }
 
-        val result = playCard("Bob", KING of HEARTS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("Bob does not have K♥️ in their hand"))
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Jane does not have ${ACE of SPADES}")
     }
 
-    @Test
-    fun `first player cannot play card different than two of clubs on first turn`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-
-        val result = playCard("Bob", SIX of DIAMONDS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("Bob must play 2♣️ on the first turn"))
-    }
-
+    // TODO parameterize
     @Test
     fun `player that is not to the left of the previous player cannot play next`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            BOB played (TWO of CLUBS)
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playCard("Bob", TWO of CLUBS)
+        val throwable = catchThrowable { game.playCard(MARY, TEN of CLUBS) }
 
-        val result = playCard("Mary", TWO of HEARTS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("It's not Mary's turn to play"))
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("It's not Mary's turn to play")
     }
 
     @Test
     fun `player that is to the left of the previous player can play next`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            BOB played (TWO of CLUBS)
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playCard("Bob", TWO of CLUBS)
+        game.playCard(JANE, THREE of CLUBS)
 
-        val result = playCard("Jane", THREE of CLUBS)
-
-        assertThat(result).isEqualTo(PlayedCard)
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(JANE played (THREE of CLUBS))
     }
 
-    @Disabled
+    @Test
+    fun `player has to follow the leading suit if they can`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            BOB played (TWO of CLUBS)
+        )
+
+        val throwable = catchThrowable { game.playCard(JANE, TEN of DIAMONDS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Jane must follow leading suit")
+    }
+
+    // TODO also test this after a few played cards when it is eventually no longer possible to follow suit
+    @Test
+    fun `player can play another card if they cannot follow leading suit`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            JaneHasNoClubs.cardsDealt,
+            JaneHasNoClubs.cardsPassed,
+            BOB played (TWO of CLUBS)
+        )
+
+        game.playCard(JANE, QUEEN of SPADES)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(JANE played (QUEEN of SPADES))
+    }
+
+    @Test
+    fun `hearts cannot be played in the first trick`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            JaneHasNoClubs.cardsDealt,
+            JaneHasNoClubs.cardsPassed,
+            BOB played (TWO of CLUBS)
+        )
+
+        val throwable = catchThrowable { game.playCard(JANE, THREE of HEARTS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("$HEARTS have not been broken")
+    }
+
+    @Test
+    fun `player can play hearts in first trick when player has no other options`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            MaryHasOnlyHearts.cardsDealt,
+            MaryHasOnlyHearts.cardsPassed,
+            BOB played (TWO of CLUBS),
+            JANE played (THREE of CLUBS)
+        )
+
+        game.playCard(MARY, TEN of HEARTS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(MARY played (TEN of HEARTS))
+    }
+
+    @Test
+    fun `player that did not win the previous trick cannot lead the new trick`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstTrickOfFirstHand.toTypedArray()
+        )
+
+        val throwable = catchThrowable { game.playCard(MARY, ACE of CLUBS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("It's not Mary's turn to play")
+    }
+
     @Test
     fun `the player that won the last trick starts the next trick`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstTrickOfFirstHand.toTypedArray()
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playRound {
-            assertThat(playCard("Bob", TWO of CLUBS)).isEqualTo(PlayedCard)
-            assertThat(playCard("Jane", THREE of CLUBS)).isEqualTo(PlayedCard)
-            assertThat(playCard("Mary", TEN of CLUBS)).isEqualTo(PlayedCard)
-            assertThat(playCard("Joe", NINE of CLUBS)).isEqualTo(PlayedCard)
-        }
+        game.playCard(JOE, NINE of CLUBS)
 
-        val result = playCard("Mary", EIGHT of SPADES)
-
-        assertThat(result).isEqualTo(PlayedCard)
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(JOE played (NINE of CLUBS))
     }
 
-    @Disabled
     @Test
-    fun `player has to follow suit if they can`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
+    fun `player can play hearts from the second trick onward if they cannot follow leading suit`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            JaneHasNoClubs.cardsDealt,
+            JaneHasNoClubs.cardsPassed,
+            *JaneHasNoClubs.firstTrickOfFirstHand.toTypedArray(),
+            JOE played (NINE of CLUBS),
+            BOB played (SEVEN of CLUBS),
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playCard("Bob", TWO of CLUBS)
+        game.playCard(JANE, KING of HEARTS)
 
-        val result = playCard("Jane", TEN of DIAMONDS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("Jane must follow suit"))
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(JANE played (KING of HEARTS))
     }
 
-    @Disabled
     @Test
-    fun `player cannot play hearts in first round when player has other options`() {
-        onDeal(::maryHasNoClubs)
-        setPassingRuleTo(NoPassing)
+    fun `player cannot play a previously played card`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstTrickOfFirstHand.toTypedArray()
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playCard("Bob", TWO of CLUBS)
-        playCard("Jane", THREE of CLUBS)
+        val throwable = catchThrowable { game.playCard(MARY, TEN of CLUBS) }
 
-        val result = playCard("Mary", TEN of HEARTS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("Mary cannot play ♥️ on the first trick"))
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("${TEN of CLUBS} has already been played")
     }
 
-    @Disabled
     @Test
-    fun `player can play hearts in first round when player has no other options`() {
-        onDeal(::maryHasOnlyHearts)
-        setPassingRuleTo(NoPassing)
+    fun `player cannot play hearts when hearts have not been broken`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstTrickOfFirstHand.toTypedArray()
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playCard("Bob", TWO of CLUBS)
-        playCard("Jane", THREE of CLUBS)
+        val throwable = catchThrowable { game.playCard(JOE, FIVE of HEARTS) }
 
-        val result = playCard("Mary", TEN of HEARTS)
-
-        assertThat(result).isEqualTo(PlayedCard)
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("$HEARTS have not been broken")
     }
 
-    @Disabled
-    @Test
-    fun `player cannot open with hearts when hearts haven't been played and player has other options`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playRound {
-            playCard("Bob", TWO of CLUBS)
-            playCard("Jane", THREE of CLUBS)
-            playCard("Mary", TEN of CLUBS)
-            playCard("Joe", NINE of CLUBS)
-        }
-
-        val result = playCard("Mary", SIX of HEARTS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("Mary cannot open with ♥️ until first ♥️ has been played"))
-    }
-
-    @Disabled
     @Test
     fun `player can open with hearts when hearts haven't been played and player has no other options`() {
-        onDeal(::maryForcedToPlayHeartsOnSecondRound)
-        setPassingRuleTo(NoPassing)
+        val game = Game.fromEvents(
+            GameStarted(players),
+            MaryForcedToPlayHeartsOnSecondTrick.cardsDealt,
+            MaryForcedToPlayHeartsOnSecondTrick.cardsPassed,
+            BOB played (TWO of CLUBS),
+            JANE played (THREE of CLUBS),
+            MARY played (TEN of CLUBS),
+            JOE played (NINE of CLUBS),
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playRound {
-            playCard("Bob", TWO of CLUBS)
-            playCard("Jane", THREE of CLUBS)
-            playCard("Mary", TEN of CLUBS)
-            playCard("Joe", NINE of CLUBS)
-        }
+        game.playCard(MARY, TEN of HEARTS)
 
-        val result = playCard("Mary", TEN of HEARTS)
-
-        assertThat(result).isEqualTo(PlayedCard)
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(MARY played (TEN of HEARTS))
     }
 
-    @Disabled
     @Test
     fun `player can open with hearts when hearts have been played`() {
-        onDeal(::maryForcedToPlayHeartsOnSecondRound)
-        setPassingRuleTo(NoPassing)
+        val game = Game.fromEvents(
+            GameStarted(players),
+            MaryForcedToPlayHeartsOnSecondTrick.cardsDealt,
+            MaryForcedToPlayHeartsOnSecondTrick.cardsPassed,
+            BOB played (TWO of CLUBS),
+            JANE played (ACE of CLUBS),
+            MARY played (TEN of CLUBS),
+            JOE played (FOUR of CLUBS),
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playRound {
-            playCard("Bob", TWO of CLUBS)
-            playCard("Jane", ACE of CLUBS)
-            playCard("Mary", TEN of CLUBS)
-            playCard("Joe", FOUR of CLUBS)
-        }
-        playRound {
-            playCard("Jane", THREE of CLUBS)
-            playCard("Mary", TEN of HEARTS)
-            playCard("Joe", NINE of CLUBS)
-            playCard("Bob", FIVE of CLUBS)
-        }
+            JANE played (THREE of CLUBS),
+            MARY played (TEN of HEARTS),
+            JOE played (NINE of CLUBS),
+            BOB played (FIVE of CLUBS)
+        )
 
-        val result = playCard("Joe", SIX of HEARTS)
+        game.playCard(JOE, SIX of HEARTS)
 
-        assertThat(result).isEqualTo(PlayedCard)
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(JOE played (SIX of HEARTS))
     }
 
-    @Disabled
     @Test
-    fun `player cannot play a card before passing has finished`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(AlwaysPassLeft)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-
-        val result = playCard("Bob", TWO of CLUBS)
-
-        assertThat(result).isEqualTo(CouldNotPlayCard("It's not time to play cards yet"))
-    }
-
-    @Disabled
-    @Test
-    fun `player cannot pass cards they don't have`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(AlwaysPassLeft)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-
-        val result = passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of SPADES))
-
-        assertThat(result).isEqualTo(CouldNotPassCards("Bob does not have 5♠️"))
-    }
-
-    @Disabled
-    @Test
-    fun `player cannot pass more than 3 cards`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(AlwaysPassLeft)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-
-        val result = passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS, QUEEN of DIAMONDS))
-
-        assertThat(result).isEqualTo(CouldNotPassCards("Bob needs to pass exactly three cards"))
-    }
-
-    @Disabled
-    @Test
-    fun `player cannot pass less than 3 cards`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(AlwaysPassLeft)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-
-        val result = passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS))
-
-        assertThat(result).isEqualTo(CouldNotPassCards("Bob needs to pass exactly three cards"))
-    }
-
-    @Disabled
-    @Test
-    fun `player cannot pass twice during same deal`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(AlwaysPassLeft)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-
-        passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS))
-        val result = passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS, QUEEN of DIAMONDS))
-
-        assertThat(result).isEqualTo(CouldNotPassCards("Bob already passed cards during this deal"))
-    }
-
-    @Disabled
-    @Test
-    fun `cards are not received until everyone has passed cards`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(AlwaysPassLeft)
-
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-
-        passCards("Mary", setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
-        passCards("Joe", setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS))
-        passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS))
-
-        assertThat(cardsInHandOf("Joe")).hasSize(10)
-
-        passCards("Jane", setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS))
-
-        assertThat(cardsInHandOf("Joe"))
-            .hasSize(13)
-            .contains(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)
-    }
-
-    @Disabled
-    @Test
-    fun `cannot pass cards when passing hasn't begun yet`() {
-        joinGame("Mary")
-        joinGame("Joe")
-
-        val result = passCards("Mary", setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
-
-        assertThat(result).isEqualTo(CouldNotPassCards("Now is not the time to be passing cards"))
-    }
-
-    @Disabled
-    @Test
-    // HERE
     fun `cards are dealt a second time when all cards from first deal have been played`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
-        val cardPlaysInFirstDeal = readCardPlaysFromResource("/fixed_card_plays_no_passing.txt")
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.filterNot { it == DefaultGame.firstHand.last() }.toTypedArray()
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        playCards(cardPlaysInFirstDeal)
+        game.playCard(JOE, FIVE of HEARTS)
 
-        val result = playCard("Bob", TWO of CLUBS)
-
-        assertThat(result).isEqualTo(PlayedCard)
+        val cardsDealt = game.events.filterIsInstance<CardsDealt>()
+        assertThat(cardsDealt).hasSize(2)
+        assertThatCardsAreDealt(cardsDealt.last())
     }
 
-    @Disabled
     @Test
-    fun `cards are passed to the right on second deal when four-way passing is enabled`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(FourWayPassing)
-        val cardPlaysInFirstDeal = readCardPlaysFromResource("/fixed_card_plays_four_way_passing.txt")
+    fun `2nd hand - players cannot pass cards they don't have`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
-        passCards("Mary", setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
-        passCards("Joe", setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS))
-        passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS))
-        passCards("Jane", setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS))
+        val throwable = catchThrowable {
+            game.passCards(
+                PlayerWithCards(MARY, setOf(QUEEN of HEARTS, TWO of HEARTS, EIGHT of HEARTS)),
+                PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+                PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+                PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
+            )
+        }
 
-        playCards(cardPlaysInFirstDeal)
-        passCards("Mary", setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS))
-        passCards("Joe", setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS))
-        passCards("Bob", setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS))
-        passCards("Jane", setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS))
-
-        assertThat(cardsInHandOf("Jane")).contains(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("Mary does not have ${QUEEN of HEARTS}")
     }
 
-    @Disabled
     @Test
-    fun `scores are calculated at the end of each deal`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
-        val cardPlaysInFirstDeal = readCardPlaysFromResource("/fixed_card_plays_no_passing.txt").asSequence().toList()
+    fun `should pass cards to the right on second hand`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
+        game.passCards(
+            PlayerWithCards(MARY, setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS)),
+            PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+            PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+            PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
+        )
 
-        playCards(cardPlaysInFirstDeal.subList(0, 4))
-        assertThat(scoreOfPlayer("Mary")).isEqualTo(0)
-        assertThat(scoreOfPlayer("Joe")).isEqualTo(0)
-        assertThat(scoreOfPlayer("Bob")).isEqualTo(0)
-        assertThat(scoreOfPlayer("Jane")).isEqualTo(0)
-
-        playCards(cardPlaysInFirstDeal.subList(4, cardPlaysInFirstDeal.size))
-        assertThat(scoreOfPlayer("Mary")).isEqualTo(0)
-        assertThat(scoreOfPlayer("Joe")).isEqualTo(4)
-        assertThat(scoreOfPlayer("Bob")).isEqualTo(4)
-        assertThat(scoreOfPlayer("Jane")).isEqualTo(18)
+        assertThat(game.events.filterIsInstance<CardsPassed>()).containsExactly(
+            DefaultGame.cardsPassedHand1,
+            DefaultGame.cardsPassedHand2
+        )
     }
 
-    @Disabled
+    @Test
+    fun `2nd hand - hearts cannot be played in the first trick`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            JaneHasNoClubs.cardsDealt,
+            JaneHasNoClubs.cardsPassed,
+            BOB played (TWO of CLUBS)
+        )
+
+        val throwable = catchThrowable { game.playCard(JANE, THREE of HEARTS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("$HEARTS have not been broken")
+    }
+
+    @Test
+    fun `2nd hand - player can play hearts in first trick when player has no other options`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            MaryHasOnlyHearts.cardsDealt,
+            MaryHasOnlyHearts.cardsPassed,
+            BOB played (TWO of CLUBS),
+            JANE played (THREE of CLUBS)
+        )
+
+        game.playCard(MARY, TEN of HEARTS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(MARY played (TEN of HEARTS))
+    }
+
+    @Test
+    fun `play a full second round`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand2
+        )
+
+        assertThatNoException().isThrownBy {
+            game.playCard(MARY, TWO of CLUBS)
+            game.playCard(JOE, THREE of CLUBS)
+            game.playCard(BOB, SEVEN of CLUBS)
+            game.playCard(JANE, SIX of CLUBS)
+
+            game.playCard(BOB, JACK of CLUBS)
+            game.playCard(JANE, QUEEN of CLUBS)
+            game.playCard(MARY, FIVE of CLUBS)
+            game.playCard(JOE, FOUR of CLUBS)
+
+            game.playCard(JANE, KING of CLUBS)
+            game.playCard(MARY, ACE of CLUBS)
+            game.playCard(JOE, NINE of CLUBS)
+            game.playCard(BOB, FOUR of DIAMONDS)
+
+            game.playCard(MARY, SIX of DIAMONDS)
+            game.playCard(JOE, TEN of DIAMONDS)
+            game.playCard(BOB, THREE of DIAMONDS)
+            game.playCard(JANE, KING of DIAMONDS)
+
+            game.playCard(JANE, TWO of HEARTS)
+            game.playCard(MARY, ACE of HEARTS)
+            game.playCard(JOE, SEVEN of HEARTS)
+            game.playCard(BOB, FOUR of HEARTS)
+
+            game.playCard(MARY, ACE of DIAMONDS)
+            game.playCard(JOE, EIGHT of DIAMONDS)
+            game.playCard(BOB, QUEEN of DIAMONDS)
+            game.playCard(JANE, THREE of HEARTS)
+
+            game.playCard(MARY, TEN of SPADES)
+            game.playCard(JOE, QUEEN of SPADES)
+            game.playCard(BOB, SIX of SPADES)
+            game.playCard(JANE, KING of SPADES)
+
+            game.playCard(JANE, EIGHT of CLUBS)
+            game.playCard(MARY, TEN of CLUBS)
+            game.playCard(JOE, TWO of SPADES)
+            game.playCard(BOB, ACE of SPADES)
+
+            game.playCard(MARY, FIVE of DIAMONDS)
+            game.playCard(JOE, NINE of DIAMONDS)
+            game.playCard(BOB, TWO of DIAMONDS)
+            game.playCard(JANE, KING of HEARTS)
+
+            game.playCard(JOE, SEVEN of SPADES)
+            game.playCard(BOB, FOUR of SPADES)
+            game.playCard(JANE, THREE of SPADES)
+            game.playCard(MARY, NINE of SPADES)
+
+            game.playCard(MARY, SEVEN of DIAMONDS)
+            game.playCard(JOE, QUEEN of HEARTS)
+            game.playCard(BOB, NINE of HEARTS)
+            game.playCard(JANE, JACK of HEARTS)
+
+            game.playCard(MARY, TEN of HEARTS)
+            game.playCard(JOE, FIVE of HEARTS)
+            game.playCard(BOB, SIX of HEARTS)
+            game.playCard(JANE, EIGHT of HEARTS)
+
+            game.playCard(MARY, JACK of DIAMONDS)
+            game.playCard(JOE, FIVE of SPADES)
+            game.playCard(BOB, EIGHT of SPADES)
+            game.playCard(JANE, JACK of SPADES)
+        }
+    }
+
     @Test
     fun `game ends when a score of 100 or higher is reached`() {
-        onDeal(::dealFixedCards)
-        setPassingRuleTo(NoPassing)
-        val cardPlays = readCardPlaysFromResource("/fixed_card_plays_no_passing.txt").asSequence().toList()
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedHand1,
+            *DefaultGame.firstHand.filterNot { it == DefaultGame.firstHand.last() }.toTypedArray()
+        )
 
-        joinGame("Mary")
-        joinGame("Joe")
-        joinGame("Bob")
-        joinGame("Jane")
-        startGame()
+        game.playCard(JOE, FIVE of HEARTS)
 
-        repeat(5) { playCards(cardPlays) }
-        assertThat(hasGameEnded()).isFalse()
-
-        playCards(cardPlays)
-        assertThat(scoreOfPlayer("Jane")).isEqualTo(108)
-        assertThat(hasGameEnded()).isTrue()
+        assertThat(game.events.last())
+            .isEqualTo(JOE played (FIVE of HEARTS))
     }
 
-    private fun onDeal(dealCardsToPlayer: (PlayerName) -> List<Card>) {
-    }
+    // TODO add full game test
 
-    private fun playCards(cardPlays: Iterable<PlayCard>) {
-        cardPlays.forEach(this::playCard)
-    }
+    private fun assertThatCardsAreDealt(cardsDealt: CardsDealt) {
+        assertThat(cardsDealt.players).isEqualTo(players)
+        assertThat(cardsDealt.allCards).containsAll(Deck().cards)
 
-    private fun setPassingRuleTo(rule: PassingRule) {
-        // hint: for now, ignore this method by commenting out the line below
-        // this method will become relevant when you encounter the first test where players have to pass cards
-    }
-
-    private fun playCards(cardPlays: Iterator<PlayCard>) {
-        cardPlays.forEach(this::playCard)
-    }
-
-    private fun passCards(passedBy: PlayerName, cards: Set<Card>) =
-        context.commandExecutor.execute(PassCards(cards, passedBy))
-
-    private fun playCard(player: PlayerName, card: Card) = playCard(PlayCard(card, player))
-
-    private fun playCard(command: PlayCard) = context.commandExecutor.execute(command)
-
-    private fun joinGame(player: PlayerName) = context.commandExecutor.execute(MakePlayerJoinGame(player))
-
-    private fun startGame(): StartGameResponse = context.commandExecutor.execute(StartGame())
-
-    private fun gameHasStarted(): Boolean = context.queryExecutor.execute(HasGameStarted)
-
-    private fun cardsInHandOf(player: PlayerName) = context.queryExecutor.execute(CardsInHandOf(player))
-
-    private fun whoseTurnIsIt(): PlayerName = context.queryExecutor.execute(WhoseTurnIsIt)
-
-    private fun playRound(action: () -> Unit) {
-        action()
-    }
-
-    private fun scoreOfPlayer(player: PlayerName) = context.queryExecutor.execute(WhatIsScoreOfPlayer(player))
-
-    private fun hasGameEnded() = context.queryExecutor.execute(HasGameEnded)
-
-    companion object {
-        @JvmStatic
-        fun data(): Stream<Arguments> {
-            return Stream.of(Arguments.of("Bob"))
-        }
+        assertThat(cardsDealt.player1WithCards.cards).hasSize(13)
+        assertThat(cardsDealt.player2WithCards.cards).hasSize(13)
+        assertThat(cardsDealt.player3WithCards.cards).hasSize(13)
+        assertThat(cardsDealt.player4WithCards.cards).hasSize(13)
     }
 }

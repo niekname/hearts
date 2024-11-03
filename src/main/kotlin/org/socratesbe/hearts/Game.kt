@@ -1,8 +1,8 @@
-package org.socratesbe.hearts2
+package org.socratesbe.hearts
 
-import org.socratesbe.hearts2.Suit.CLUBS
-import org.socratesbe.hearts2.Suit.HEARTS
-import org.socratesbe.hearts2.Symbol.TWO
+import org.socratesbe.hearts.Suit.CLUBS
+import org.socratesbe.hearts.Suit.HEARTS
+import org.socratesbe.hearts.Symbol.TWO
 
 class Game private constructor(events: List<Event> = emptyList()) {
     companion object {

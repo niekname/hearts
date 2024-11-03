@@ -1,8 +1,8 @@
-package org.socratesbe.hearts2
+package org.socratesbe.hearts
 
-import org.socratesbe.hearts2.CardsPassed.PlayerPassing
-import org.socratesbe.hearts2.Suit.*
-import org.socratesbe.hearts2.Symbol.*
+import org.socratesbe.hearts.CardsPassed.PlayerPassing
+import org.socratesbe.hearts.Suit.*
+import org.socratesbe.hearts.Symbol.*
 
 val MARY = Player("Mary")
 val JOE = Player("Joe")

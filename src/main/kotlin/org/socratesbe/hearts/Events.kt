@@ -1,4 +1,4 @@
-package org.socratesbe.hearts2
+package org.socratesbe.hearts
 
 interface Event
 

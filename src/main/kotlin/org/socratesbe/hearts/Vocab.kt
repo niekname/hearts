@@ -1,8 +1,8 @@
-package org.socratesbe.hearts2
+package org.socratesbe.hearts
 
-import org.socratesbe.hearts2.Suit.HEARTS
-import org.socratesbe.hearts2.Suit.SPADES
-import org.socratesbe.hearts2.Symbol.QUEEN
+import org.socratesbe.hearts.Suit.HEARTS
+import org.socratesbe.hearts.Suit.SPADES
+import org.socratesbe.hearts.Symbol.QUEEN
 
 typealias PlayerName = String
 
