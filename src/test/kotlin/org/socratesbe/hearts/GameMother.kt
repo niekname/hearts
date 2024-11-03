@@ -79,21 +79,30 @@ object DefaultGame {
         )
     )
 
-    val cardsPassedHand1 = CardsPassed(
+    val cardsPassedToTheLeft = CardsPassed(
         listOf(
-            PlayerPassing(MARY, JOE, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
-            PlayerPassing(JOE, BOB, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
-            PlayerPassing(BOB, JANE, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
-            PlayerPassing(JANE, MARY, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
+            PlayerPassing(from = MARY, to = JOE, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
+            PlayerPassing(from = JOE, to = BOB, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+            PlayerPassing(from = BOB, to = JANE, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
+            PlayerPassing(from = JANE, to = MARY, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
         )
     )
 
-    val cardsPassedHand2 = CardsPassed(
+    val cardsPassedToTheRight = CardsPassed(
         listOf(
             PlayerPassing(from = MARY, to = JANE, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
             PlayerPassing(from = JOE, to = MARY, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
             PlayerPassing(from = BOB, to = JOE, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
             PlayerPassing(from = JANE, to = BOB, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
+        )
+    )
+
+    val cardsPassedAcross = CardsPassed(
+        listOf(
+            PlayerPassing(from = MARY, to = BOB, QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS),
+            PlayerPassing(from = JOE, to = JANE, SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS),
+            PlayerPassing(from = BOB, to = MARY, THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS),
+            PlayerPassing(from = JANE, to = JOE, EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS),
         )
     )
 
@@ -166,6 +175,73 @@ object DefaultGame {
         JANE played (JACK of HEARTS),
         MARY played (ACE of HEARTS),
         JOE played (FIVE of HEARTS)
+    )
+
+    val secondHand = listOf(
+        MARY played (TWO of CLUBS),
+        JOE played (THREE of CLUBS),
+        BOB played (SEVEN of CLUBS),
+        JANE played (SIX of CLUBS),
+
+        BOB played (JACK of CLUBS),
+        JANE played (QUEEN of CLUBS),
+        MARY played (FIVE of CLUBS),
+        JOE played (FOUR of CLUBS),
+
+        JANE played (KING of CLUBS),
+        MARY played (ACE of CLUBS),
+        JOE played (NINE of CLUBS),
+        BOB played (FOUR of DIAMONDS),
+
+        MARY played (SIX of DIAMONDS),
+        JOE played (TEN of DIAMONDS),
+        BOB played (THREE of DIAMONDS),
+        JANE played (KING of DIAMONDS),
+
+        JANE played (TWO of HEARTS),
+        MARY played (ACE of HEARTS),
+        JOE played (SEVEN of HEARTS),
+        BOB played (FOUR of HEARTS),
+
+        MARY played (ACE of DIAMONDS),
+        JOE played (EIGHT of DIAMONDS),
+        BOB played (QUEEN of DIAMONDS),
+        JANE played (THREE of HEARTS),
+
+        MARY played (TEN of SPADES),
+        JOE played (QUEEN of SPADES),
+        BOB played (SIX of SPADES),
+        JANE played (KING of SPADES),
+
+        JANE played (EIGHT of CLUBS),
+        MARY played (TEN of CLUBS),
+        JOE played (TWO of SPADES),
+        BOB played (ACE of SPADES),
+
+        MARY played (FIVE of DIAMONDS),
+        JOE played (NINE of DIAMONDS),
+        BOB played (TWO of DIAMONDS),
+        JANE played (KING of HEARTS),
+
+        JOE played (SEVEN of SPADES),
+        BOB played (FOUR of SPADES),
+        JANE played (THREE of SPADES),
+        MARY played (NINE of SPADES),
+
+        MARY played (SEVEN of DIAMONDS),
+        JOE played (QUEEN of HEARTS),
+        BOB played (NINE of HEARTS),
+        JANE played (JACK of HEARTS),
+
+        MARY played (TEN of HEARTS),
+        JOE played (FIVE of HEARTS),
+        BOB played (SIX of HEARTS),
+        JANE played (EIGHT of HEARTS),
+
+        MARY played (JACK of DIAMONDS),
+        JOE played (FIVE of SPADES),
+        BOB played (EIGHT of SPADES),
+        JANE played (JACK of SPADES),
     )
 }
 
