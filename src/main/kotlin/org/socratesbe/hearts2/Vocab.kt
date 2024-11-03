@@ -1,5 +1,9 @@
 package org.socratesbe.hearts2
 
+import org.socratesbe.hearts2.Suit.HEARTS
+import org.socratesbe.hearts2.Suit.SPADES
+import org.socratesbe.hearts2.Symbol.QUEEN
+
 typealias PlayerName = String
 
 data class Players(val player1: Player, val player2: Player, val player3: Player, val player4: Player) {
@@ -81,7 +85,12 @@ data class Trick(val cardsPlayed: List<CardPlayed>) {
             .maxBy { it.card.symbol }
 
     fun leadingSuit() = cardsPlayed.first().card.suit
+
+    fun score() =
+        PlayerScore(wonBy(), cardsPlayed.map { it.card }.sumOf { it.penaltyPoints })
 }
+
+data class PlayerScore(val player: Player, val score: Int)
 
 data class Deck(
     val cards: List<Card> =
@@ -91,6 +100,15 @@ data class Deck(
 )
 
 data class Card(val suit: Suit, val symbol: Symbol) {
+    val penaltyPoints: Int
+        get() {
+            return when {
+                this == QUEEN of SPADES -> 13
+                suit == HEARTS -> 1
+                else -> 0
+            }
+        }
+
     override fun toString() = "$symbol$suit"
 }
 

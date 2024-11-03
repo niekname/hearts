@@ -130,7 +130,16 @@ class Game private constructor(events: List<Event> = emptyList()) {
             .also { checkRules(it) }
             .let { _events += it }
 
-        if (allCardsPlayed()) dealCards()
+        if (!gameHasEnded() && allCardsPlayed()) dealCards()
+    }
+
+    private fun gameHasEnded(): Boolean {
+        val allPlayerScores = tricks().map { it.score() }
+        val scorePerPlayer = allPlayerScores.groupingBy { it.player }
+            .fold(0) { acc, elem -> acc + elem.score }
+            .map { PlayerScore(it.key, it.value) }
+
+        return scorePerPlayer.any {it.score >= 100}
     }
 
     private fun allCardsPlayed() = cardsPlayed().size == Deck().cards.size

@@ -581,12 +581,6 @@ class GameTest {
             *DefaultGame.firstHand.toTypedArray(),
             DefaultGame.cardsDealt,
             DefaultGame.cardsPassedHand1,
-            *DefaultGame.firstHand.toTypedArray(),
-            DefaultGame.cardsDealt,
-            DefaultGame.cardsPassedHand1,
-            *DefaultGame.firstHand.toTypedArray(),
-            DefaultGame.cardsDealt,
-            DefaultGame.cardsPassedHand1,
             *DefaultGame.firstHand.filterNot { it == DefaultGame.firstHand.last() }.toTypedArray()
         )
 
