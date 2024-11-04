@@ -471,6 +471,36 @@ class GameTest {
     }
 
     @Test
+    fun `should not pass cards on fourth hand`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedToTheLeft,
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedToTheRight,
+            *DefaultGame.secondHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedToTheLeft, // TODO
+            *DefaultGame.firstHand.toTypedArray(),
+            DefaultGame.cardsDealt
+        )
+
+        val throwable = catchThrowable {
+            game.passCards(
+                PlayerWithCards(MARY, setOf(QUEEN of CLUBS, TWO of HEARTS, EIGHT of HEARTS)),
+                PlayerWithCards(JOE, setOf(SIX of DIAMONDS, TWO of CLUBS, FIVE of CLUBS)),
+                PlayerWithCards(BOB, setOf(THREE of CLUBS, TEN of DIAMONDS, NINE of DIAMONDS)),
+                PlayerWithCards(JANE, setOf(EIGHT of SPADES, THREE of DIAMONDS, SIX of HEARTS)),
+            )
+        }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("No cards must be passed in this hand")
+    }
+
+    @Test
     fun `2nd hand - hearts cannot be played in the first trick`() {
         val game = Game.fromEvents(
             GameStarted(players),
