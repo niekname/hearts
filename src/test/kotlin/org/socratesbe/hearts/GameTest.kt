@@ -444,6 +444,44 @@ class GameTest {
     }
 
     @Test
+    fun `2nd hand - hearts cannot be played in the first trick`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedToTheLeft,
+            *DefaultGame.firstHand.toTypedArray(),
+            JaneHasNoClubs.cardsDealt,
+            JaneHasNoClubs.cardsPassed,
+            BOB played (TWO of CLUBS)
+        )
+
+        val throwable = catchThrowable { game.playCard(JANE, THREE of HEARTS) }
+
+        assertThat(throwable)
+            .isInstanceOf(RuntimeException::class.java)
+            .hasMessage("$HEARTS have not been broken")
+    }
+
+    @Test
+    fun `2nd hand - player can play hearts in first trick when player has no other options`() {
+        val game = Game.fromEvents(
+            GameStarted(players),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedToTheLeft,
+            *DefaultGame.firstHand.toTypedArray(),
+            MaryHasOnlyHearts.cardsDealt,
+            MaryHasOnlyHearts.cardsPassed,
+            BOB played (TWO of CLUBS),
+            JANE played (THREE of CLUBS)
+        )
+
+        game.playCard(MARY, TEN of HEARTS)
+
+        val cardPlayed = game.events.last() as CardPlayed
+        assertThat(cardPlayed).isEqualTo(MARY played (TEN of HEARTS))
+    }
+
+    @Test
     fun `should pass cards across on third hand`() {
         val game = Game.fromEvents(
             GameStarted(players),
@@ -501,41 +539,24 @@ class GameTest {
     }
 
     @Test
-    fun `2nd hand - hearts cannot be played in the first trick`() {
+    fun `play first card in fourth hand`() {
         val game = Game.fromEvents(
             GameStarted(players),
             DefaultGame.cardsDealt,
             DefaultGame.cardsPassedToTheLeft,
             *DefaultGame.firstHand.toTypedArray(),
-            JaneHasNoClubs.cardsDealt,
-            JaneHasNoClubs.cardsPassed,
-            BOB played (TWO of CLUBS)
-        )
-
-        val throwable = catchThrowable { game.playCard(JANE, THREE of HEARTS) }
-
-        assertThat(throwable)
-            .isInstanceOf(RuntimeException::class.java)
-            .hasMessage("$HEARTS have not been broken")
-    }
-
-    @Test
-    fun `2nd hand - player can play hearts in first trick when player has no other options`() {
-        val game = Game.fromEvents(
-            GameStarted(players),
             DefaultGame.cardsDealt,
-            DefaultGame.cardsPassedToTheLeft,
+            DefaultGame.cardsPassedToTheRight,
+            *DefaultGame.secondHand.toTypedArray(),
+            DefaultGame.cardsDealt,
+            DefaultGame.cardsPassedToTheLeft, // TODO
             *DefaultGame.firstHand.toTypedArray(),
-            MaryHasOnlyHearts.cardsDealt,
-            MaryHasOnlyHearts.cardsPassed,
-            BOB played (TWO of CLUBS),
-            JANE played (THREE of CLUBS)
+            DefaultGame.cardsDealt
         )
 
-        game.playCard(MARY, TEN of HEARTS)
+        game.playCard(BOB, TWO of CLUBS)
 
-        val cardPlayed = game.events.last() as CardPlayed
-        assertThat(cardPlayed).isEqualTo(MARY played (TEN of HEARTS))
+        assertThat(game.events.last()).isEqualTo(BOB played (TWO of CLUBS))
     }
 
     @Test
