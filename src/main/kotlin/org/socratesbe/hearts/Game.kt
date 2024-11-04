@@ -33,6 +33,8 @@ class Game private constructor(events: List<Event> = emptyList()) {
         player3pass: PlayerWithCards,
         player4pass: PlayerWithCards
     ) {
+        if (isFourthHand())
+            throw RuntimeException("No cards must be passed in this hand")
         // TODO needs validation that this is not 4 times the same player passing the same cards etc
         if (passingHasHappened())
             throw RuntimeException("Cards have already been passed")
@@ -68,6 +70,9 @@ class Game private constructor(events: List<Event> = emptyList()) {
 
     private fun isSecondHand() =
         _events.filterIsInstance<CardsDealt>().size == 2
+
+    private fun isFourthHand() =
+        _events.filterIsInstance<CardsDealt>().size == 4
 
     fun playCard(player: Player, card: Card) {
         CardPlayed(player, card)
