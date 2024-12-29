@@ -51,11 +51,11 @@ data class Player(val name: PlayerName)
 
 data class PlayerWithCards(val player: Player, val cards: Set<Card>)
 
-data class Hand(
-    val cardsDealt: CardsDealt,
-    val cardsPassed: CardsPassed?,
-    val cardsPlayed: List<CardPlayed>
-) {
+class Hand(events: List<Event>) {
+    private val cardsDealt = events.first() as CardsDealt
+    private val cardsPassed = events.filterIsInstance<CardsPassed>().firstOrNull()
+    private val cardsPlayed = events.filterIsInstance<CardPlayed>()
+
     fun isFirstCardOfHand() =
         cardsPlayed.isEmpty()
 

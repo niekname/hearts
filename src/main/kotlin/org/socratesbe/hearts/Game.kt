@@ -187,16 +187,8 @@ class Game private constructor(events: List<Event> = emptyList()) {
     private fun lastPlayer() =
         _events.filterIsInstance<CardPlayed>().last().player
 
-    private fun currentHand(): Hand {
-        if (isFourthHand()) {
-            val lastCardsDealtIndex = _events.indexOfLast { it is CardsDealt }
-            val sublist = _events.subList(lastCardsDealtIndex, _events.size)
-            return Hand(sublist.first() as CardsDealt, null, sublist.filterIsInstance<CardPlayed>())
-        }
-        val lastCardsDealtIndex = _events.indexOfLast { it is CardsDealt }
-        val sublist = _events.subList(lastCardsDealtIndex, _events.size)
-        return Hand(sublist.first() as CardsDealt, sublist[1] as CardsPassed, sublist.filterIsInstance<CardPlayed>())
-    }
+    private fun currentHand() =
+        Hand(_events.subList(_events.indexOfLast { it is CardsDealt }, _events.size))
 
     private fun tricks() =
         _events.filterIsInstance<CardPlayed>()
