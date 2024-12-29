@@ -53,7 +53,7 @@ data class PlayerWithCards(val player: Player, val cards: Set<Card>)
 
 data class Hand(
     val cardsDealt: CardsDealt,
-    val cardsPassed: CardsPassed,
+    val cardsPassed: CardsPassed?,
     val cardsPlayed: List<CardPlayed>
 ) {
     fun isFirstCardOfHand() =
@@ -83,10 +83,10 @@ data class Hand(
             .toSet()
 
     private fun cardsPassedBy(player: Player) =
-        cardsPassed.byPlayer(player).cards()
+        cardsPassed?.byPlayer(player)?.cards() ?: emptySet()
 
     private fun cardsPassedTo(player: Player) =
-        cardsPassed.toPlayer(player).cards()
+        cardsPassed?.toPlayer(player)?.cards() ?: emptySet()
 }
 
 // TODO add specific types for finished / unfinished trick?

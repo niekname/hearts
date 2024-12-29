@@ -554,9 +554,9 @@ class GameTest {
             DefaultGame.cardsDealt
         )
 
-        game.playCard(BOB, TWO of CLUBS)
+        game.playCard(JOE, TWO of CLUBS)
 
-        assertThat(game.events.last()).isEqualTo(BOB played (TWO of CLUBS))
+        assertThat(game.events.last()).isEqualTo(JOE played (TWO of CLUBS))
     }
 
     @Test
